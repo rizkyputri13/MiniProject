@@ -1,18 +1,18 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm';
-import { UsersPhones } from './UsersPhones';
+import { Column, Entity, Index, OneToMany } from "typeorm";
+import { UsersPhones } from "./UsersPhones";
 
-@Index('phone_number_type_pkey', ['pontyCode'], { unique: true })
-@Entity('phone_number_type', { schema: 'public' })
+@Index("phone_number_type_pkey", ["pontyCode"], { unique: true })
+@Entity("phone_number_type", { schema: "public" })
 export class PhoneNumberType {
-  @Column('character varying', {
+  @Column("character varying", {
     primary: true,
-    name: 'ponty_code',
+    name: "ponty_code",
     length: 15,
   })
   pontyCode: string;
 
-  @Column('timestamp without time zone', {
-    name: 'ponty_modified_date',
+  @Column("timestamp without time zone", {
+    name: "ponty_modified_date",
     nullable: true,
   })
   pontyModifiedDate: Date | null;

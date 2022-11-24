@@ -1,13 +1,13 @@
-import { Column, Entity, Index, OneToMany } from 'typeorm';
-import { RouteActions } from './RouteActions';
-import { Status } from './Status';
+import { Column, Entity, Index, OneToMany } from "typeorm";
+import { RouteActions } from "./RouteActions";
+import { Status } from "./Status";
 
-@Index('modules_pkey', ['moduleName'], { unique: true })
-@Entity('modules', { schema: 'public' })
+@Index("modules_pkey", ["moduleName"], { unique: true })
+@Entity("modules", { schema: "public" })
 export class Modules {
-  @Column('character varying', {
+  @Column("character varying", {
     primary: true,
-    name: 'module_name',
+    name: "module_name",
     length: 125,
   })
   moduleName: string;

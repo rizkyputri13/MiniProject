@@ -32,8 +32,6 @@ export class UsersService {
       },
       where: [{ userName: username }],
     });
-    console.log(user);
-
     const compare = await Bcrypt.compare(pass, user.userPassword);
     if (compare) {
       const { userPassword, ...result } = user;

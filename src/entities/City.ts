@@ -6,25 +6,25 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-} from 'typeorm';
-import { Address } from './Address';
-import { Province } from './Province';
-import { ProgramEntity } from './ProgramEntity';
-import { UserAccounts } from './UserAccounts';
-import { UsersExperiences } from './UsersExperiences';
+} from "typeorm";
+import { Address } from "./Address";
+import { Province } from "./Province";
+import { ProgramEntity } from "./ProgramEntity";
+import { UserAccounts } from "./UserAccounts";
+import { UsersExperiences } from "./UsersExperiences";
 
-@Index('city_pkey', ['cityId'], { unique: true })
-@Index('city_city_name_key', ['cityName'], { unique: true })
-@Entity('city', { schema: 'public' })
+@Index("city_pkey", ["cityId"], { unique: true })
+@Index("city_city_name_key", ["cityName"], { unique: true })
+@Entity("city", { schema: "public" })
 export class City {
-  @PrimaryGeneratedColumn({ type: 'integer', name: 'city_id' })
+  @PrimaryGeneratedColumn({ type: "integer", name: "city_id" })
   cityId: number;
 
-  @Column('character varying', { name: 'city_name', unique: true, length: 155 })
+  @Column("character varying", { name: "city_name", unique: true, length: 155 })
   cityName: string;
 
-  @Column('timestamp without time zone', {
-    name: 'city_modified_date',
+  @Column("timestamp without time zone", {
+    name: "city_modified_date",
     nullable: true,
   })
   cityModifiedDate: Date | null;
@@ -33,10 +33,10 @@ export class City {
   addresses: Address[];
 
   @ManyToOne(() => Province, (province) => province.cities, {
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
   })
-  @JoinColumn([{ name: 'city_prov_id', referencedColumnName: 'provId' }])
+  @JoinColumn([{ name: "city_prov_id", referencedColumnName: "provId" }])
   cityProv: Province;
 
   @OneToMany(() => ProgramEntity, (programEntity) => programEntity.progCity)
@@ -47,7 +47,7 @@ export class City {
 
   @OneToMany(
     () => UsersExperiences,
-    (usersExperiences) => usersExperiences.usexCity,
+    (usersExperiences) => usersExperiences.usexCity
   )
   usersExperiences: UsersExperiences[];
 }
