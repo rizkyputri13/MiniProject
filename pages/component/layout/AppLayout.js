@@ -55,9 +55,10 @@ export default function AppLayout(props) {
     const [user, setUser] = useState({})
     useEffect(() => {
         setUser(UserProfile)
-    },[])
+    },[UserProfile])
     console.log(UserProfile);
     console.log(user);
+    
     const onLogout = () => {
         dispatch(doPushSignoutRequest());
         router.push('/')

@@ -1,0 +1,69 @@
+import axios from 'axios'
+import { domain } from '../config/config'
+
+const getBatch = async()=>{
+    try {
+        const result = await axios.get(`${domain}/api/batch/batch`)
+        const data = result.data
+        return data
+    } catch (error) {
+        return await error.message
+    }
+}
+
+const getBatchStudent = async()=>{
+    try {
+        const result = await axios.get(`${domain}/api/batch/batchStudent`)
+        const data = result.data
+        return data
+    } catch (error) {
+        return await error.message
+    }
+}
+
+const getBatchEva = async()=>{
+    try {
+        const result = await axios.get(`${domain}/api/batch/batchEva`)
+        const data = result.data
+        return data
+    } catch (error) {
+        return await error.message
+    }
+}
+
+const getEmp = async()=>{
+    try {
+        const result = await axios.get(`${domain}/api/batch/emp`)
+        const data = result.data
+        return data
+    } catch (error) {
+        return await error.message
+    }
+}
+
+const update = async(data)=>{
+    try {
+        const result = await axios.put(`${domain}/api/batch/updateBatch${data.batchId}`,data)
+        return result
+    } catch (error) {
+        return await error.message
+    }
+}
+const findOne = async(id)=>{
+    try {
+        const result = await axios.get(`${domain}/api/batch/${id}`)
+        return result.data 
+    } catch (error) {
+        return await error.message
+    }
+}
+
+const filter = async(id)=>{
+    try {
+        const result = await axios.get(`${domain}/api/batch/${id}`)
+        return result.data 
+    } catch (error) {
+        return await error.message
+    }
+}
+export default {getBatch, getBatchStudent, getBatchEva,getEmp, update,findOne, filter}
