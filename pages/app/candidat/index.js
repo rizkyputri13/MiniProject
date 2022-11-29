@@ -13,22 +13,28 @@ function classNames(...classes) {
 }
 
 export default function Candidates() {
-
   const [categories] = useState({
-    'Apply': [],
-    'Filtering Test': [],
-    'Contract': [],
-    'Disqualified': [],
-    'Not Responding': [],
+    Apply: [],
+    "Filtering Test": [],
+    Contract: [],
+    Disqualified: [],
+    "Not Responding": [],
   });
 
-  const [users, setUsers] = useState([])
+  const [users, setUsers] = useState([]);
+  const [userEdus, setUserEdus] = useState([]);
 
   useState(() => {
-    CandidateApi.list().then(data => {
-      setUsers(data)
-    })
-  }, [])
+    CandidateApi.user().then((data) => {
+      setUsers(data);
+    });
+  }, []);
+
+  useState(() => {
+    CandidateApi.userEdu().then((data) => {
+      setUserEdus(data);
+    });
+  }, []);
 
   return (
     <AppLayout>
@@ -39,7 +45,8 @@ export default function Candidates() {
             <li className="inline-flex items-center">
               <a
                 href="../app"
-                className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+                className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+              >
                 Home
               </a>
             </li>
@@ -49,15 +56,18 @@ export default function Candidates() {
                   className="w-6 h-6 text-gray-400"
                   fill="currentColor"
                   viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg">
+                  xmlns="http://www.w3.org/2000/svg"
+                >
                   <path
                     fillRule="evenodd"
                     d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                    clipRule="evenodd"/>
+                    clipRule="evenodd"
+                  />
                 </svg>
                 <a
                   href="../app/candidat"
-                  className="ml-1 text-sm font-medium text-gray-700 hover:text-gray-900 md:ml-2 dark:text-gray-400 dark:hover:text-white">
+                  className="ml-1 text-sm font-medium text-gray-700 hover:text-gray-900 md:ml-2 dark:text-gray-400 dark:hover:text-white"
+                >
                   Candidates
                 </a>
               </div>
@@ -86,7 +96,10 @@ export default function Candidates() {
                     //'w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-grey-300',
                     selected
                       ? "bg-white shadow"
-                      : "text-grey-800 hover:bg-white/[0.12] hover:text-purple-700")}>
+                      : "text-grey-800 hover:bg-white/[0.12] hover:text-purple-700"
+                  )
+                }
+              >
                 {category}
               </Tab>
             ))}
@@ -126,35 +139,53 @@ export default function Candidates() {
           </thead> */}
 
           <tbody>
-            { users && users.map((user) => (
             <>
-            <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-              <th
-                scope="row"
-                className="flex items-center py-2 px-6 text-gray-900 whitespace-nowrap dark:text-white"
-              >
-                <img
-                  className="w-10 h-10 rounded-full flex-shrink-0"
-                  src={"../assets/images/yuri.jpg"}
-                  alt="Jese image"
-                />
-                <div className="pl-3">
-                  <div className="text-base font-semibold">{user.userName}</div>
-                  <div className="font-normal text-gray-500">
-                   
-                  </div>
+              <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                <div>
+                  {users &&
+                    users.map((user) => (
+                      // eslint-disable-next-line react/jsx-key
+                      <th
+                        scope="row"
+                        className="flex items-center py-2 px-6 text-gray-900 whitespace-nowrap dark:text-white"
+                      >
+                        <img
+                          className="w-10 h-10 rounded-full flex-shrink-0"
+                          src={"../assets/images/yuri.jpg"}
+                          alt="Jese image"
+                        />
+                        <div className="pl-3">
+                          <div className="text-base font-semibold">
+                            {user.userName}
+                          </div>
+                          <div className="font-normal text-gray-500"></div>
+                        </div>
+                      </th>
+                    ))}
                 </div>
-              </th>
-              <td className="py-4 px-6"></td>
-              <td className="py-4 px-6">31 August 2021</td>
-              <td className="py-4 px-6">{user.uspoNumber}</td>
-              <td className="py-4 px-6">NodeJS</td>
-              <td className="py-4 px-6">Applied on 5 January, 2022</td>
-              <td><ModalReview /></td>
-              
-            </tr>
+                <td className="pl-3">
+                  {userEdus &&
+                    userEdus.map((userEdu) => (
+                      // eslint-disable-next-line react/jsx-key
+                      <td>{userEdu.usduSchool}</td>
+                    ))}
+                </td> 
+
+                <td className="py-4 px-6">
+                  <div>
+                    <td>
+                      
+                    </td>
+                  </div>
+                </td>
+                <td className="py-4 px-6">{}</td>
+                <td className="py-4 px-6">{}</td>
+                <td className="py-4 px-6">Applied on 5 January, 2022</td>
+                <td>
+                  <ModalReview />
+                </td>
+              </tr>
             </>
-             )) }
           </tbody>
         </table>
       </div>

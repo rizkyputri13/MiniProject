@@ -1,9 +1,19 @@
 import axios from 'axios'
 import { domain } from '../config/config'
 
-const list = async()=>{
+const user = async()=>{
     try {
         const result = await axios.get(`${domain}/api/candidate/user`)
+        const data = result.data
+        return data
+    } catch (error) {
+        return await error.message
+    }
+}
+
+const userEdu = async()=>{
+    try {
+        const result = await axios.get(`${domain}/api/candidate/userEdu`)
         const data = result.data
         return data
     } catch (error) {
@@ -36,4 +46,4 @@ const filter = async(id)=>{
         return await error.message
     }
 }
-export default {list,update,findOne, filter}
+export default {user,userEdu,update,findOne, filter}

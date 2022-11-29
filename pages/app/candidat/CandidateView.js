@@ -104,7 +104,7 @@ export default function Batch() {
                     type="search"
                     onChange={handleOnChange("input")}
                     className="form-control relative w-48 block px-2 py-0.5 text-xs font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:border-transparent focus:text-gray-700 focus:ring-1 focus:ring-offset-1 focus:ring-purple-500 focus:outline-none"
-                    placeholder="country name"
+                    placeholder="batch name"
                     aria-label="Search"
                     aria-describedby="button-addon2"
                   />

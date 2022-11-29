@@ -1,237 +1,390 @@
-import { Tab } from "@headlessui/react";
-import { useRouter } from "next/router";
+/* eslint-disable react/jsx-no-undef */
 import Page from "../../component/commons/Page";
 import AppLayout from "../../component/layout/AppLayout";
-import { useState } from "react";
-import BatchApi from "../../api/BatchApi";
-import CandidateApi from "../../api/CandidateApi";
-import ModalOption from "../../component/ModalOption";
+import { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { GetBatchRequest } from "../../redux-saga/Action/BatchAction";
+import { Menu, Transition } from "@headlessui/react";
+import Link from "next/link";
+import { ToastContainer, toast } from "react-toastify";
+import React, { Fragment } from "react";
+import {
+  DotsVerticalIcon,
+  PencilAltIcon,
+  TrashIcon,
+  ChevronRightIcon,
+  ChevronLeftIcon,
+} from "@heroicons/react/solid";
+
+const columns = [
+  { name: "BATCH" },
+  { name: "TECHNOLOGY" },
+  { name: "MEMBERS" },
+  { name: "PERIODE" },
+  { name: "TRAINER" },
+  { name: "STATUS" },
+  //{ name: "ACTION" },
+];
+
+function classNames(...classes) {
+  return classes.filter(Boolean).join(" ");
+}
 
 export default function Batch() {
-  let navigate = useRouter();
+  const dispatch = useDispatch();
+  const [pageNumbers, setPageNumbers] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageRange, setPageRange] = useState(0);
+  const [display, setDisplay] = useState(false);
+  const handleOnChange = (name) => (event) => {
+    setFilter({ ...filter, [name]: event.target.value });
+  };
 
-  const [batchs, setBatchs] = useState([]);
-  const [batchStudents, setBatchStudents] = useState([]);
-  const [batchEvas, setBatchEvas] = useState([]);
-  const [emps, setEmps] = useState([]);
-  const [users, setUsers] = useState([]);
+  const onSearch = (e) => {
+    e.preventDefault();
+    setListCand(
+      Array.isArray(handleGetBatch) &&
+        handleGetBatch.filter((data) =>
+          data.batchName.toLowerCase().includes(filter.input.toLowerCase())
+        )
+    );
+  };
+  const handleGetBatch = useSelector((state) => state.batchStated.batchs);
 
-  useState(() => {
-    CandidateApi.list().then((data) => {
-      setUsers(data);
-    });
-  }, []);
-
-  useState(() => {
-    BatchApi.getBatch().then((data) => {
-      setBatchs(data);
-    });
-  }, []);
-
-  useState(() => {
-    BatchApi.getBatchStudent().then((data) => {
-      setBatchStudents(data);
-    });
-  }, []);
-
-  useState(() => {
-    BatchApi.getBatchEva().then((data) => {
-      setBatchEvas(data);
-    });
-  }, []);
-
-  useState(() => {
-    BatchApi.getEmp().then((data) => {
-      setEmps(data);
-    });
-  }, []);
+  useEffect(() => {
+    dispatch(GetBatchRequest());
+    console.log(handleGetBatch);
+  }, [dispatch, handleGetBatch]);
 
   return (
     <AppLayout>
-      {/* Breadcrumb */}
-      <nav className="flex px-5 py-3 " aria-label="Breadcrumb">
-        <ol className="inline-flex items-center space-x-1 md:space-x-3">
-          <li className="inline-flex items-center">
-            <a
-              href="../app"
-              className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-            >
-              Home
-            </a>
-          </li>
-          <li>
-            <div className="flex items-center">
-              <svg
-                className="w-6 h-6 text-gray-400"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <a
-                href="../app/batch"
-                className="ml-1 text-sm font-medium text-gray-700 hover:text-gray-900 md:ml-2 dark:text-gray-400 dark:hover:text-white"
-              >
-                Batch
-              </a>
-            </div>
-          </li>
-        </ol>
-      </nav>
       <Page
+        name={"Batch"}
+        setDisplay={setDisplay}
         title="Batch"
         titleButton="Create"
         onClick={() => navigate("/app/batch/")}
       >
-        <nav class="px-20 bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-700">
-          <div class="container flex flex-wrap items-center justify-between ">
-            <h2>Search by Category</h2>
-            <input
-              type="text"
-              placeholder="batch, technology, trainer"
-              className="px-5 flex-1 input input-bordered py-2 
-            input-xs w-full max-w-xs rounded-md"
-            />
-            <select className="flex rounded-lg max-w-xs px-7y ">
-              <option disabled selected>
-                Status
-              </option>
-              <option>New</option>
-              <option>Running</option>
-              <option>Closed</option>
-            </select>
-            <button
-              type="button"
-              class="text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-500 focus:ring-4 
-              focus:outline-none focus:ring-purple-300  rounded-lg text-sm px-5 py-2.5 text-center  dark:border-purple-400 
-              dark:text-purple-400 dark:hover:text-white dark:hover:bg-purple-500 dark:focus:ring-purple-900"
-            >
-              Search
-            </button>
+        {/* {
+          <tr>
+            <div className="py-4 px-6">
+              {handleGetBatch &&
+                handleGetBatch.map((batch) => (
+                  <td key={batch.batchName}>{batch.batchName}</td>
+                ))}
+            </div>
+          </tr>
+        } */}
+        <div className="mt-6 mx-24 flex justify-center">
+          <div className="w-full">
+            <div className="input-group relative flex justify-center items-stretch w-full mb-10">
+              <p className="text-xs mx-2 py-1">Search by category</p>
+              <input
+                type="search"
+                onChange={handleOnChange("input")}
+                className="form-control relative w-48 block px-2 py-0.5 text-xs font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:border-transparent focus:text-gray-700 focus:ring-1 focus:ring-offset-1 focus:ring-purple-500 focus:outline-none"
+                placeholder="batch, technology, trainer"
+                aria-label="Search"
+                aria-describedby="button-addon2"
+              />
+              <select className="flex rounded max-w-xs px-4 py-0.5 text-xs ">
+                <option disabled selected>
+                  Status
+                </option>
+                <option>New</option>
+                <option>Running</option>
+                <option>Closed</option>
+              </select>
+              <button
+                type="submit"
+                onClick={(e) => onSearch(e)}
+                className="btn px-3 py-2 bg-orange-600 text-white text-xs leading-tight uppercase rounded shadow-md hover:bg-red-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-purple-500 transition duration-150 ease-in-out flex items-center"
+              > Search
+                {/* <svg
+                  aria-hidden="true"
+                  focusable="false"
+                  data-prefix="fas"
+                  data-icon="search"
+                  className="w-3"
+                  role="img"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 512 512"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
+                  ></path>
+                </svg> */}
+              </button>
+            </div>
           </div>
-        </nav>
-        <br></br>
-      </Page>
-
-      <div>
-        <table className="w-full text-sm text-left text-gray-800 dark:text-gray-400">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-              <th scope="col" className="py-3 px-6">
-                BATCH
-              </th>
-              <th scope="col" className="py-3 px-6">
-                TECHNOLOGY
-              </th>
-              <th scope="col" className="py-3 px-6">
-                MEMBERS
-              </th>
-              <th scope="col" className="py-3 px-6">
-                PERIODE
-              </th>
-              <th scope="col" className="py-3 px-6">
-                TRAINER
-              </th>
-              <th scope="col" className="py-3 px-6">
-                STATUS
-              </th>
-              <th scope="col" className="py-3 px-6">
-                ACTION
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <>
-              <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                <div className="py-4 px-6">
-                  {batchs &&
-                    batchs.map((batch) => (
-                      // eslint-disable-next-line react/jsx-key
-                      <td>{batch.batchName}</td>
-                    ))}
-                </div>
-                <td className="py-4 px-6">
-                  <div>
-                    {batchEvas &&
-                      batchEvas.map((batchEva) => (
-                        // eslint-disable-next-line react/jsx-key
-                        <li>{batchEva.baseSkill}</li>
-                      ))}
-                  </div>
-                </td>
-                <td className="py-4 px-6">
-                  <div className="flex mb-3 -space-x-4">
-                    {/* {batchStudents &&
-                      batchStudents.map((batchStudent) => ( */}
-                    <>
-                      <img
-                        className="w-8 h-8 border-2 border-white rounded-full dark:border-gray-800"
-                        src="../assets/images/yuri.jpg"
-                        alt=""
-                      />
-                      <img
-                        className="w-8 h-8 border-2 border-white rounded-full dark:border-gray-800"
-                        src="../assets/images/yuri.jpg"
-                        alt=""
-                      />
-                      <img
-                        className="w-8 h-8 border-2 border-white rounded-full dark:border-gray-800"
-                        src="../assets/images/yuri.jpg"
-                        alt=""
-                      />
-                      <img
-                        className="w-8 h-8 border-2 border-white rounded-full dark:border-gray-800"
-                        src="../assets/images/yuri.jpg"
-                        alt=""
-                      />
-                    </>
-                  </div>
-                </td>
-                <th>
-                  {batchs &&
-                    batchs.map((batch) => (
+        </div>
+        <div className="sm:block">
+          <div className="align-middle inline-block min-w-full border-b border-gray-200 ">
+            <table className="min-w-full">
+              <thead className="border-y border-gray-200">
+                <tr key="col_names">
+                  {(columns || []).map((column) => (
+                    // eslint-disable-next-line react/jsx-key
+                    <th className="px-6 py-3 bg-gray-50 text-center text-xs font-medium text-gray-900 uppercase">
+                      <span className="">{column.name}</span>
+                    </th>
+                  ))}
+                  <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-900 uppercase tracking-wider" />
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-100">
+                {Array.isArray(handleGetBatch) &&
+                  handleGetBatch
+                    .slice((currentPage - 1) * 10, currentPage * 10)
+                    .map((data) => (
                       <>
-                        <div className="text-gray-600 font-medium">
-                          {batch.batchStartDate}
-                        </div>
-                        <div className="text-gray-600 font-medium">
-                          {batch.batchEndDate}
-                        </div>
+                        <tr key={data.batchId}>
+                          <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
+                            {data.batchName}
+                          </td>
+                          <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
+                            {data.baseSkill}
+                          </td>
+                          <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
+                            {data.candidateName}
+                          </td>
+                          <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
+                            {data.batchStartDate}
+                            <br></br>
+                            {data.batchEndDate}
+                          </td>
+                          <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
+                            {data.candidateName}
+                          </td>
+                          <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
+                            {data.batchStatus}
+                          </td>
+                          <td className="pr-6">
+                            <Menu
+                              as="div"
+                              className="relative flex justify-end items-center"
+                            >
+                              {({ open }) => (
+                                <>
+                                  <Menu.Button className="w-8 h-8 bg-white inline-flex items-center justify-center text-gray-600 rounded-full hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 ">
+                                    <span className="sr-only">
+                                      Open options
+                                    </span>
+                                    <DotsVerticalIcon
+                                      className="w-5 h-5"
+                                      aria-hidden="true"
+                                    />
+                                  </Menu.Button>
+                                  <Transition
+                                    show={open}
+                                    as={Fragment}
+                                    enter="transition ease-out duration-100"
+                                    enterFrom="transform opacity-0 scale-95"
+                                    enterTo="transform opacity-100 scale-100"
+                                    leave="transition ease-in duration-75"
+                                    leaveFrom="transform opacity-100 scale-100"
+                                    leaveTo="transform opacity-0 scale-95"
+                                  >
+                                    <Menu.Items
+                                      static
+                                      className="mx-3 origin-top-right absolute right-7 top-0 w-48 mt-1 rounded-md shadow-lg z-10 bg-gray-100 ring-1 ring-gray-900 ring-opacity-5 divide-y divide-gray-300 focus:outline-none"
+                                    >
+                                      <div className="py-1">
+                                        <Menu.Item>
+                                          {({ active }) => (
+                                            <Link
+                                              href="#"
+                                              onClick={() =>
+                                                onClick(data.batchId)
+                                              }
+                                              className={classNames(
+                                                active
+                                                  ? "bg-gray-300 text-gray-700"
+                                                  : "text-gray-900",
+                                                "group flex items-center px-4 py-2 text-sm"
+                                              )}
+                                            >
+                                              <PencilAltIcon
+                                                className="mr-3 h-5 w-5 text-gray-700 group-hover:text-gray-500"
+                                                aria-hidden="true"
+                                              />
+                                              Edit
+                                            </Link>
+                                          )}
+                                        </Menu.Item>
+                                      </div>
+                                      <div className="py-1">
+                                        <Menu.Item>
+                                          {({ active }) => (
+                                            <Link
+                                              href="#"
+                                              onClick={() => {
+                                                if (
+                                                  window.confirm(
+                                                    "Delete this Batch ?"
+                                                  )
+                                                )
+                                                  onDelete(data.batchId);
+                                              }}
+                                              className={classNames(
+                                                active
+                                                  ? "bg-gray-300 text-gray-700"
+                                                  : "text-gray-900",
+                                                "group flex items-center px-4 py-2 text-sm"
+                                              )}
+                                            >
+                                              <TrashIcon
+                                                className="mr-3 h-5 w-5 text-gray-700 group-hover:text-gray-500"
+                                                aria-hidden="true"
+                                              />
+                                              Delete
+                                            </Link>
+                                          )}
+                                        </Menu.Item>
+                                      </div>
+                                    </Menu.Items>
+                                  </Transition>
+                                </>
+                              )}
+                            </Menu>
+                          </td>
+                        </tr>
                       </>
                     ))}
-                </th>
-                <td className="py-4 px-6">
-                  <div>
-                    {batchs &&
-                      batchs.map((batch) => (
-                        // eslint-disable-next-line react/jsx-key
-                        <td>{}</td>
-                      ))}
-                  </div>
-                </td>
-                <td className="py-4 px-6">
-                  <div>
-                    {batchs &&
-                      batchs.map((batch) => (
-                        // eslint-disable-next-line react/jsx-key
-                        <td>{batch.batchStatus}</td>
-                      ))}
-                  </div>
-                </td>
+              </tbody>
+            </table>
+            {handleGetBatch.length === 0 && (
+              <div className="px-6 py-3 text-center whitespace-nowrap text-sm font-medium text-gray-900">
+                {" "}
+                Data Not Found...
+              </div>
+            )}
 
-                <td>
-                  <ModalOption />
-                </td>
-              </tr>
-            </>
-          </tbody>
-        </table>
-      </div>
+            <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-center">
+                {/* <div>
+                  <p className="text-sm text-gray-700">
+                    Showing{" "}
+                    <span className="font-medium">
+                      {(currentPage - 1) * 10 + 1}
+                    </span>{" "}
+                    to{" "}
+                    <span className="font-medium">
+                      {currentPage * 10 < handleGetBatch.length
+                        ? currentPage * 10
+                        : handleGetBatch.length}
+                    </span>{" "}
+                    of{" "}
+                    <span className="font-medium">{handleGetBatch.length}</span>{" "}
+                    results
+                  </p>
+                </div> */}
+                <br></br>
+                <br></br>
+                <div>
+                  <nav
+                    className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                    aria-label="Pagination"
+                  >
+                    <button
+                      onClick={() => {
+                        setCurrentPage(1);
+                        setPageNumbers(
+                          [...pageNumbers].map((val) =>
+                            val.number === 1
+                              ? { ...val, active: true }
+                              : { ...val, active: false }
+                          )
+                        );
+                        setPageRange(0);
+                      }}
+                      className="relative inline-flex items-center px-3 py-2 font-medium text-gray-600 hover:text-orange-600"
+                    >
+                      <span className="underline">First</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        const min = 0;
+                        if (pageRange > min) {
+                          setPageRange(pageRange - 1);
+                        }
+                      }}
+                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                    >
+                      <span className="sr-only">Previous</span>
+                      <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
+                    </button>
+                    {/* Current: "z-10 bg-indigo-50 border-indigo-500 text-indigo-600", Default: "bg-white border-gray-300 text-gray-500 hover:bg-gray-50" */}
+
+                    {pageNumbers
+                      .slice(pageRange * 4, pageRange * 4 + 4)
+                      .map((el) => (
+                        // eslint-disable-next-line react/jsx-key
+                        <button
+                          onClick={() => {
+                            setCurrentPage(el.number);
+                            setPageNumbers(
+                              [...pageNumbers].map((val) =>
+                                val.number === el.number
+                                  ? { ...val, active: true }
+                                  : { ...val, active: false }
+                              )
+                            );
+                          }}
+                          aria-current="page"
+                          className={classNames(
+                            el.active
+                              ? "z-20 bg-orange-100 border-orange-600 text-orange-900"
+                              : "z-10 bg-white border-gray-300 text-gray-600",
+                            "relative inline-flex items-center px-4 py-2 border text-sm font-medium"
+                          )}
+                        >
+                          {el.number}
+                        </button>
+                      ))}
+                    <button
+                      onClick={() => {
+                        const max = Math.ceil(pageNumbers.length / 4) - 1;
+                        if (pageRange < max) {
+                          setPageRange(pageRange + 1);
+                        }
+                      }}
+                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                    >
+                      <span className="sr-only">Next</span>
+                      <ChevronRightIcon
+                        className="h-5 w-5"
+                        aria-hidden="true"
+                      />
+                    </button>
+                    <button
+                      onClick={() => {
+                        const max = Math.ceil(pageNumbers.length / 4) - 1;
+                        setCurrentPage(pageNumbers.length);
+                        setPageNumbers(
+                          [...pageNumbers].map((val) =>
+                            val.number === pageNumbers.length
+                              ? { ...val, active: true }
+                              : { ...val, active: false }
+                          )
+                        );
+                        setPageRange(max);
+                      }}
+                      className="relative inline-flex items-center px-3 py-2 font-medium text-gray-600 hover:text-orange-600"
+                    >
+                      <span className="underline">Last</span>
+                    </button>
+                  </nav>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="z-30">
+          <ToastContainer autoClose={2000} />
+        </div>
+      </Page>
     </AppLayout>
   );
 }

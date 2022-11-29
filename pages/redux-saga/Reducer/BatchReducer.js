@@ -1,24 +1,26 @@
-import * as ActionType from '../Constants/BatchConstant'
+import * as ActionTypeBatch from '../Constants/BatchConstant'
 
 const INIT_STATE = {
     batchs:[],
-    batch:[]
+    //batch:[]
 }
 
-const BatchReduce =(state = INIT_STATE,action) => {
+const BatchReducer =(state = INIT_STATE,action) => {
     switch (action.type) {
-        case ActionType.GET_BATCH_REQUEST:
+        case ActionTypeBatch.GET_BATCH_REQUEST:
             return {...state}
-        case ActionType.GET_BATCH_SUCCESS:
+        case ActionTypeBatch.GET_BATCH_SUCCESS:
             return GetBatchSuccessed(state,action)
-        case ActionType.GETONE_BATCH_REQUEST:
+        // case ActionTypeBatch.GETONE_BATCH_REQUEST:
+        //     return {...state}
+        // case ActionTypeBatch.GETONE_BATCH_SUCCESS:
+        //     return GetOneBatchSuccessed(state,action)
+        case ActionTypeBatch.EDIT_BATCH_REQUEST:
             return {...state}
-        case ActionType.GETONE_BATCH_SUCCESS:
-            return GetOneBatchSuccessed(state,action)
-        case ActionType.EDIT_BATCH_REQUEST:
-            return {...state}
-        case ActionType.EDIT_BATCH_SUCCESS:
+        case ActionTypeBatch.EDIT_BATCH_SUCCESS:
             return EditBatchSuccessed(state,action)
+        default:
+            return state
     }
 }
 
@@ -29,12 +31,12 @@ const GetBatchSuccessed = (state,action) => {
     }
 }
 
-const GetOneBatchSuccessed = (state,action) =>{
-    return {
-        ...state,
-        batch:action.payload
-    }
-}
+// const GetOneBatchSuccessed = (state,action) =>{
+//     return {
+//         ...state,
+//         batch:action.payload
+//     }
+// }
 
 const EditBatchSuccessed = (state,action) =>{
     const {payload}=action
@@ -46,4 +48,4 @@ const EditBatchSuccessed = (state,action) =>{
 }
 
 
-export default BatchReduce
+export default BatchReducer
