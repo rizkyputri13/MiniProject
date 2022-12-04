@@ -1,6 +1,16 @@
 import axios from 'axios'
 import { domain } from '../config/config'
 
+const bootcamp = async()=>{
+    try {
+        const result = await axios.get(`${domain}/api/candidate/bootcamp`)
+        const data = result.data
+        return data
+    } catch (error) {
+        return await error.message
+    }
+}
+
 const user = async()=>{
     try {
         const result = await axios.get(`${domain}/api/candidate/user`)
@@ -46,4 +56,4 @@ const filter = async(id)=>{
         return await error.message
     }
 }
-export default {user,userEdu,update,findOne, filter}
+export default {bootcamp, user,userEdu,update,findOne, filter}

@@ -1,18 +1,37 @@
-import { useState } from "react";
-import { Tab } from "@headlessui/react";
+/* eslint-disable react/jsx-no-undef */
 import AppLayout from "../../component/layout/AppLayout";
-import Page from "../../component/commons/Page";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { GetCandRequest } from "../../redux-saga/Action/CandAction";
-import Modal from "../../component/ModalReview";
+import { Menu, Transition } from "@headlessui/react";
+import Link from "next/link";
+import { ToastContainer, toast } from "react-toastify";
+import React, { Fragment } from "react";
+import { Tab } from "@headlessui/react";
+import {
+  DotsVerticalIcon,
+  PencilAltIcon,
+  TrashIcon,
+  ChevronRightIcon,
+  ChevronLeftIcon,
+} from "@heroicons/react/solid";
 import ModalReview from "../../component/ModalReview";
-import CandidateApi from "../../api/CandidateApi";
+
+const columns = [
+  { name: "" },
+  { name: "" },
+  { name: "" },
+  { name: "" },
+  { name: "" },
+  { name: "" },
+  { name: "" },
+];
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function Candidates() {
+export default function Candidate() {
   const [categories] = useState({
     Apply: [],
     "Filtering Test": [],
@@ -21,61 +40,58 @@ export default function Candidates() {
     "Not Responding": [],
   });
 
-  const [users, setUsers] = useState([]);
-  const [userEdus, setUserEdus] = useState([]);
+  const dispatch = useDispatch();
 
-  useState(() => {
-    CandidateApi.user().then((data) => {
-      setUsers(data);
-    });
-  }, []);
+  const [candidates, setCandidates] = useState([]);
+  const [pageNumbers, setPageNumbers] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageRange, setPageRange] = useState(0);
+  const [display, setDisplay] = useState(false);
+  const [filter, setFilter] = useState({
+    input: "",
+  });
 
-  useState(() => {
-    CandidateApi.userEdu().then((data) => {
-      setUserEdus(data);
-    });
-  }, []);
+  const handleGetCand = useSelector(
+    (state) => state.candidateStated.candidates
+  );
+
+  useEffect(() => {
+    dispatch(GetCandRequest());
+    console.log(handleGetCand);
+  }, [dispatch, handleGetCand]);
+
+  const handleOnChange = (name) => (event) => {
+    setFilter({ ...filter, [name]: event.target.value });
+  };
+
+  useEffect(() => {
+    setCandidates(
+      Array.isArray(candidates) &&
+        candidates.filter((dataUser) =>
+          dataUser.userName.toLowerCase().includes(filter.input.toLowerCase())
+        )
+    );
+  }, [candidates, filter.input]);
+
+  useEffect(() => {
+    setPageNumbers(
+      Array.from({ length: Math.ceil(handleGetCand.length / 5) }, (v, i) =>
+        i + 1 === 1
+          ? { number: i + 1, active: true }
+          : { number: i + 1, active: false }
+      )
+    );
+    setCurrentPage(1);
+    setPageRange(0);
+  }, [handleGetCand]);
+
+  const onClick = (id) => {
+    setDisplayEdit(true);
+    setId(id);
+  };
 
   return (
     <AppLayout>
-      <>
-        {/* Breadcrumb */}
-        <nav className="flex px-5 py-3 " aria-label="Breadcrumb">
-          <ol className="inline-flex items-center space-x-1 md:space-x-3">
-            <li className="inline-flex items-center">
-              <a
-                href="../app"
-                className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-              >
-                Home
-              </a>
-            </li>
-            <li>
-              <div className="flex items-center">
-                <svg
-                  className="w-6 h-6 text-gray-400"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <a
-                  href="../app/candidat"
-                  className="ml-1 text-sm font-medium text-gray-700 hover:text-gray-900 md:ml-2 dark:text-gray-400 dark:hover:text-white"
-                >
-                  Candidates
-                </a>
-              </div>
-            </li>
-          </ol>
-        </nav>
-      </>
-
       <div className="border-b border-gray-200 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div className="flex-1 min-w-0">
           <h1 className="text-lg font-medium leading-6 text-gray-900 sm:truncate">
@@ -83,10 +99,9 @@ export default function Candidates() {
           </h1>
         </div>
       </div>
-
       <div className="w-full max-w px-2 py-0 sm:px-0">
         <Tab.Group>
-          <Tab.List className="flex space-x-1  bg-purple-300/20 p-1">
+          <Tab.List className="flex space-x-1  bg-gray-100 p-1">
             {Object.keys(categories).map((category) => (
               <Tab
                 key={category}
@@ -103,7 +118,7 @@ export default function Candidates() {
                 {category}
               </Tab>
             ))}
-            <select className="select rounded-lg max-w-xs">
+            <select className="select flex rounded-lg max-w-xs px-8 py-0.5 text-xs ">
               <option disabled selected>
                 Filter by Month
               </option>
@@ -120,7 +135,7 @@ export default function Candidates() {
               <option>November</option>
               <option>December</option>
             </select>
-            <select className="select rounded-lg max-w-xs">
+            <select className="select flex rounded-lg max-w-xs px-8 py-0.5 text-xs">
               <option disabled selected>
                 Year
               </option>
@@ -130,132 +145,217 @@ export default function Candidates() {
               <option>2022</option>
             </select>
           </Tab.List>
+          <Tab.Panel>
+            
+          </Tab.Panel>
         </Tab.Group>
       </div>
-      <br></br>
-      <div>
-        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-          {/* <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-          </thead> */}
 
-          <tbody>
-            <>
-              <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                <div>
-                  {users &&
-                    users.map((user) => (
-                      // eslint-disable-next-line react/jsx-key
-                      <th
-                        scope="row"
-                        className="flex items-center py-2 px-6 text-gray-900 whitespace-nowrap dark:text-white"
-                      >
-                        <img
-                          className="w-10 h-10 rounded-full flex-shrink-0"
-                          src={"../assets/images/yuri.jpg"}
-                          alt="Jese image"
-                        />
-                        <div className="pl-3">
-                          <div className="text-base font-semibold">
-                            {user.userName}
-                          </div>
-                          <div className="font-normal text-gray-500"></div>
-                        </div>
-                      </th>
-                    ))}
-                </div>
-                <td className="pl-3">
-                  {userEdus &&
-                    userEdus.map((userEdu) => (
-                      // eslint-disable-next-line react/jsx-key
-                      <td>{userEdu.usduSchool}</td>
-                    ))}
-                </td> 
-
-                <td className="py-4 px-6">
-                  <div>
-                    <td>
-                      
-                    </td>
-                  </div>
-                </td>
-                <td className="py-4 px-6">{}</td>
-                <td className="py-4 px-6">{}</td>
-                <td className="py-4 px-6">Applied on 5 January, 2022</td>
-                <td>
-                  <ModalReview />
-                </td>
+      <div className="sm:block">
+        <div className="align-middle inline-block min-w-full border-b border-gray-200 ">
+          <table className="min-w-full">
+            <thead >
+              <tr key="col_names">
+                {(columns || []).map((column) => (
+                  // eslint-disable-next-line react/jsx-key
+                  <th className="px-6 py-4 bg-white text-center text-xs font-medium text-gray-900 uppercase">
+                    <span className="">{column.name}</span>
+                  </th>
+                ))}
+                <th className="px-6 py-3 bg-white text-left text-xs font-medium text-gray-900 uppercase tracking-wider" />
               </tr>
-            </>
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-100">
+              {Array.isArray(handleGetCand) &&
+                handleGetCand
+                  .slice((currentPage - 1) * 10, currentPage * 10)
+                  .map((dataUser) => (
+                    <>
+                      <tr key={dataUser.boapEntityId}>
+                        <td className=" text-center whitespace-nowrap text-sm text-gray-900">
+                          <img
+                            className="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800"
+                            src="../assets/images/yuri.jpg"
+                            alt=""
+                          />
+                        </td>
+                        <td className="px-4 py-5 text-left whitespace-nowrap text-sm text-gray-900">
+                          <div>{dataUser.boapEntity.userFirstName} {dataUser.boapEntity.userLastName}</div>
+
+                          <div className="font-style: italic">
+                            {dataUser.boapEntity.usersEmail[0].pmailAddress}
+                          </div>
+                        </td>
+                        <td className="px-4 py-2 text-left whitespace-nowrap text-sm text-gray-900">
+                          <div>
+                            {dataUser.boapEntity.usersEducations[0].usduSchool}
+                          </div>
+                          <div className="font-style: italic">
+                            {dataUser.boapEntity.usersEducations[0].usduFieldStudy}
+                          </div>
+                        </td>
+                        <td className="px-4 py-2 text-center whitespace-nowrap text-sm text-gray-900">
+                          Lulus :{" "}
+                          {/* {
+                            dataUser.boapEntity.usersEducations[0].usduEndDate} */}
+                          {new Date(
+                            dataUser.boapEntity.usersEducations[0].usduEndDate
+                          ).getFullYear()}
+                        </td>
+                        <td className="px-4 py-2 text-center whitespace-nowrap text-sm text-gray-900">
+                          HP : 0{dataUser.boapEntity.usersPhones.uspoNumber}
+                        </td>
+                        <td className=" py-2 text-center whitespace-nowrap text-sm text-gray-900">
+                          {dataUser.boapProg.progTitle}
+                        </td>
+                        <td className="px-4 py-2 text-left whitespace-nowrap text-sm text-gray-900">
+                          <div>
+                            Applied on{" "}
+                            {dataUser.boapProg.progId.boapModifiedDate}
+                            <br></br>
+                          </div>
+                          <div className="font-style: italic">
+                            {dataUser.boapStatus}
+                          </div>
+                        </td>
+
+                        {/*Option*/}
+                        <td className="pr-6">
+                          <ModalReview />
+                        </td>
+                      </tr>
+                    </>
+                  ))}
+            </tbody>
+          </table>
+
+          {handleGetCand.length === 0 && (
+            <div className="px-6 py-3 text-center whitespace-nowrap text-sm font-medium text-gray-900">
+              {" "}
+              Data Not Found...
+            </div>
+          )}
+
+          <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-center">
+              {/* <div>
+                  <p className="text-sm text-gray-700">
+                    Showing{" "}
+                    <span className="font-medium">
+                      {(currentPage - 1) * 10 + 1}
+                    </span>{" "}
+                    to{" "}
+                    <span className="font-medium">
+                      {currentPage * 10 < handleGetCand.length
+                        ? currentPage * 10
+                        : handleGetCand.length}
+                    </span>{" "}
+                    of{" "}
+                    <span className="font-medium">{handleGetCand.length}</span>{" "}
+                    results
+                  </p>
+                </div> */}
+              <br></br>
+              <br></br>
+              <div>
+                <nav
+                  className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                  aria-label="Pagination"
+                >
+                  <button
+                    onClick={() => {
+                      setCurrentPage(1);
+                      setPageNumbers(
+                        [...pageNumbers].map((val) =>
+                          val.number === 1
+                            ? { ...val, active: true }
+                            : { ...val, active: false }
+                        )
+                      );
+                      setPageRange(0);
+                    }}
+                    className="relative inline-flex items-center px-3 py-2 font-medium text-gray-600 hover:text-orange-600"
+                  >
+                    <span className="underline">First</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      const min = 0;
+                      if (pageRange > min) {
+                        setPageRange(pageRange - 1);
+                      }
+                    }}
+                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                  >
+                    <span className="sr-only">Previous</span>
+                    <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
+                  </button>
+                  {/* Current: "z-10 bg-indigo-50 border-indigo-500 text-indigo-600", Default: "bg-white border-gray-300 text-gray-500 hover:bg-gray-50" */}
+
+                  {pageNumbers
+                    .slice(pageRange * 4, pageRange * 4 + 4)
+                    .map((el) => (
+                      // eslint-disable-next-line react/jsx-key
+                      <button
+                        onClick={() => {
+                          setCurrentPage(el.number);
+                          setPageNumbers(
+                            [...pageNumbers].map((val) =>
+                              val.number === el.number
+                                ? { ...val, active: true }
+                                : { ...val, active: false }
+                            )
+                          );
+                        }}
+                        aria-current="page"
+                        className={classNames(
+                          el.active
+                            ? "z-20 bg-orange-100 border-orange-600 text-orange-900"
+                            : "z-10 bg-white border-gray-300 text-gray-600",
+                          "relative inline-flex items-center px-4 py-2 border text-sm font-medium"
+                        )}
+                      >
+                        {el.number}
+                      </button>
+                    ))}
+                  <button
+                    onClick={() => {
+                      const max = Math.ceil(pageNumbers.length / 4) - 1;
+                      if (pageRange < max) {
+                        setPageRange(pageRange + 1);
+                      }
+                    }}
+                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                  >
+                    <span className="sr-only">Next</span>
+                    <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      const max = Math.ceil(pageNumbers.length / 4) - 1;
+                      setCurrentPage(pageNumbers.length);
+                      setPageNumbers(
+                        [...pageNumbers].map((val) =>
+                          val.number === pageNumbers.length
+                            ? { ...val, active: true }
+                            : { ...val, active: false }
+                        )
+                      );
+                      setPageRange(max);
+                    }}
+                    className="relative inline-flex items-center px-3 py-2 font-medium text-gray-600 hover:text-orange-600"
+                  >
+                    <span className="underline">Last</span>
+                  </button>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <br></br>
-      <br></br>
-      <br></br>
-      <br></br>
-
-      {/* <nav aria-label="Page navigation example ">
-        <ul className="inline-flex -space-x-px  ">
-          <li>
-            <a
-              href="#"
-              className="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              Previous
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              1
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              2
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              aria-current="page"
-              className="px-3 py-2 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-            >
-              3
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              4
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              5
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              Next
-            </a>
-          </li>
-        </ul>
-      </nav> */}
+      <div className="z-30">
+        <ToastContainer autoClose={2000} />
+      </div>
     </AppLayout>
   );
 }

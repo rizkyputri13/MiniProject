@@ -32,29 +32,74 @@ function classNames(...classes) {
 
 export default function Batch() {
   const dispatch = useDispatch();
+  const [batchs, setBatchs] = useState([])
   const [pageNumbers, setPageNumbers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageRange, setPageRange] = useState(0);
   const [display, setDisplay] = useState(false);
-  const handleOnChange = (name) => (event) => {
-    setFilter({ ...filter, [name]: event.target.value });
-  };
+  const [filter, setFilter] = useState({
+    input: "",
+  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryTerm, setCategoryTerm] = useState("");
 
-  const onSearch = (e) => {
-    e.preventDefault();
-    setListCand(
-      Array.isArray(handleGetBatch) &&
-        handleGetBatch.filter((data) =>
-          data.batchName.toLowerCase().includes(filter.input.toLowerCase())
-        )
-    );
-  };
   const handleGetBatch = useSelector((state) => state.batchStated.batchs);
 
   useEffect(() => {
     dispatch(GetBatchRequest());
     console.log(handleGetBatch);
   }, [dispatch, handleGetBatch]);
+
+
+
+  // const handleOnChange = (name) => (event) => {
+  //   setFilter({ ...filter, [name]: event.target.value });
+  // };
+
+  // useEffect(() => {
+  //   setBatchs(
+  //     Array.isArray(handleGetBatch) &&
+  //    handleGetBatch.filter((data) =>
+  //         data.batchName.toLowerCase().includes(filter.input.toLowerCase())
+  //       )
+  //   );
+  // }, [handleGetBatch, filter.input]);
+
+  // const onSearch = (e) => {
+  //   e.preventDefault();
+  //   setBatchs(
+  //     Array.isArray(handleGetBatch) &&
+  //       handleGetBatch.filter((data) =>
+  //         data.batchName.toLowerCase().includes(filter.input.toLowerCase())
+  //       )
+  //   );
+  // };
+
+  useEffect(() => {
+    setPageNumbers(
+      Array.from({ length: Math.ceil(handleGetBatch.length / 5) }, (v, i) =>
+        i + 1 === 1
+          ? { number: i + 1, active: true }
+          : { number: i + 1, active: false }
+      )
+    );
+    setCurrentPage(1);
+    setPageRange(0);
+  }, [handleGetBatch]);
+
+  
+
+
+//   const onDelete = async (id) => {
+//     dispatch(DelBatchRequest(id));
+//     toast.success('Data has been deleted.')
+// }
+
+  const onClick = (id) => {
+    setDisplayEdit(true);
+    setId(id);
+  };
+
 
   return (
     <AppLayout>
@@ -65,23 +110,13 @@ export default function Batch() {
         titleButton="Create"
         onClick={() => navigate("/app/batch/")}
       >
-        {/* {
-          <tr>
-            <div className="py-4 px-6">
-              {handleGetBatch &&
-                handleGetBatch.map((batch) => (
-                  <td key={batch.batchName}>{batch.batchName}</td>
-                ))}
-            </div>
-          </tr>
-        } */}
-        <div className="mt-6 mx-24 flex justify-center">
+        <div className=" flex justify-center">
           <div className="w-full">
             <div className="input-group relative flex justify-center items-stretch w-full mb-10">
-              <p className="text-xs mx-2 py-1">Search by category</p>
+              <p className="text-sm mx-2 py-1">Search by category</p>
               <input
                 type="search"
-                onChange={handleOnChange("input")}
+                //onChange={handleOnChange("input")}
                 className="form-control relative w-48 block px-2 py-0.5 text-xs font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:border-transparent focus:text-gray-700 focus:ring-1 focus:ring-offset-1 focus:ring-purple-500 focus:outline-none"
                 placeholder="batch, technology, trainer"
                 aria-label="Search"
@@ -99,7 +134,9 @@ export default function Batch() {
                 type="submit"
                 onClick={(e) => onSearch(e)}
                 className="btn px-3 py-2 bg-orange-600 text-white text-xs leading-tight uppercase rounded shadow-md hover:bg-red-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-purple-500 transition duration-150 ease-in-out flex items-center"
-              > Search
+              >
+                {" "}
+                Search
                 {/* <svg
                   aria-hidden="true"
                   focusable="false"
@@ -144,10 +181,17 @@ export default function Batch() {
                             {data.batchName}
                           </td>
                           <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
-                            {data.baseSkill}
+                            {data.batchProg.progTitle}
                           </td>
-                          <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
-                            {data.candidateName}
+                          <td className="px-6 py-2 text-end whitespace-nowrap text-sm text-gray-900">
+                            <div>
+                              {/* <img
+                                className="w-8 h-8 border-2 border-white rounded-full dark:border-gray-800"
+                                src="../assets/images/yuri.jpg"
+                                alt=""
+                              /> */}
+                              {data.batchProg.progTotalStudent} +
+                            </div>
                           </td>
                           <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
                             {data.batchStartDate}
@@ -155,11 +199,13 @@ export default function Batch() {
                             {data.batchEndDate}
                           </td>
                           <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
-                            {data.candidateName}
+                            {data.batchInstructor.empEntity.userFirstName} {data.batchInstructor.empEntity.userLastName}
                           </td>
                           <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
                             {data.batchStatus}
                           </td>
+
+                          {/*Option*/}
                           <td className="pr-6">
                             <Menu
                               as="div"
@@ -205,11 +251,35 @@ export default function Batch() {
                                                 "group flex items-center px-4 py-2 text-sm"
                                               )}
                                             >
-                                              <PencilAltIcon
+                                              {/* <PencilAltIcon
                                                 className="mr-3 h-5 w-5 text-gray-700 group-hover:text-gray-500"
                                                 aria-hidden="true"
-                                              />
+                                              /> */}
                                               Edit
+                                            </Link>
+                                          )}
+                                        </Menu.Item>
+                                      </div>
+                                      <div className="py-1">
+                                        <Menu.Item>
+                                          {({ active }) => (
+                                            <Link
+                                              href="#"
+                                              onClick={() =>
+                                                onClick(data.batchId)
+                                              }
+                                              className={classNames(
+                                                active
+                                                  ? "bg-gray-300 text-gray-700"
+                                                  : "text-gray-900",
+                                                "group flex items-center px-4 py-2 text-sm"
+                                              )}
+                                            >
+                                              {/* <PencilAltIcon
+                                                className="mr-3 h-5 w-5 text-gray-700 group-hover:text-gray-500"
+                                                aria-hidden="true"
+                                              /> */}
+                                              Close Batch
                                             </Link>
                                           )}
                                         </Menu.Item>
@@ -234,11 +304,59 @@ export default function Batch() {
                                                 "group flex items-center px-4 py-2 text-sm"
                                               )}
                                             >
-                                              <TrashIcon
+                                              {/* <TrashIcon
                                                 className="mr-3 h-5 w-5 text-gray-700 group-hover:text-gray-500"
                                                 aria-hidden="true"
-                                              />
-                                              Delete
+                                              /> */}
+                                              Delete Batch
+                                            </Link>
+                                          )}
+                                        </Menu.Item>
+                                      </div>
+                                      <div className="py-1">
+                                        <Menu.Item>
+                                          {({ active }) => (
+                                            <Link
+                                              href="#"
+                                              onClick={() =>
+                                                onClick(data.batchId)
+                                              }
+                                              className={classNames(
+                                                active
+                                                  ? "bg-gray-300 text-gray-700"
+                                                  : "text-gray-900",
+                                                "group flex items-center px-4 py-2 text-sm"
+                                              )}
+                                            >
+                                              {/* <PencilAltIcon
+                                                className="mr-3 h-5 w-5 text-gray-700 group-hover:text-gray-500"
+                                                aria-hidden="true"
+                                              /> */}
+                                              Set to Running
+                                            </Link>
+                                          )}
+                                        </Menu.Item>
+                                      </div>
+                                      <div className="py-1">
+                                        <Menu.Item>
+                                          {({ active }) => (
+                                            <Link
+                                              href="#"
+                                              onClick={() =>
+                                                onClick(data.batchId)
+                                              }
+                                              className={classNames(
+                                                active
+                                                  ? "bg-gray-300 text-gray-700"
+                                                  : "text-gray-900",
+                                                "group flex items-center px-4 py-2 text-sm"
+                                              )}
+                                            >
+                                              {/* <PencilAltIcon
+                                                className="mr-3 h-5 w-5 text-gray-700 group-hover:text-gray-500"
+                                                aria-hidden="true"
+                                              /> */}
+                                              Evaluation
                                             </Link>
                                           )}
                                         </Menu.Item>

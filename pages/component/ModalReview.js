@@ -1,8 +1,20 @@
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, Transition, Menu } from "@headlessui/react";
 import { Fragment, useState } from "react";
+import { useSelector } from "react-redux"
+import { DotsVerticalIcon } from "@heroicons/react/solid";
+//import { GetCandRequest } from "../../redux-saga/Action/CandAction";
 
 export default function ModalReview({ modalTitle, buttonTitle, children }) {
   let [isOpen, setIsOpen] = useState(false);
+
+  // const handleGetCand = useSelector(
+  //   (state) => state.candidateStated.candidates
+  // );
+
+  // useEffect(() => {
+  //   dispatch(GetCandRequest());
+  //   console.log(handleGetCand);
+  // }, [handleGetCand]);
 
   function closeModal() {
     setIsOpen(false);
@@ -14,7 +26,22 @@ export default function ModalReview({ modalTitle, buttonTitle, children }) {
 
   return (
     <>
-      <div>
+      <Menu as="div" className="relative flex justify-end items-center">
+        {({ open }) => (
+          <>
+            <Menu.Button
+              className="w-8 h-8 bg-white inline-flex items-center justify-center text-gray-600
+             rounded-full hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 
+             focus:ring-orange-500 "
+              onClick={openModal}
+            >
+              <span className="sr-only">Open options</span>
+              <DotsVerticalIcon className="w-5 h-5" aria-hidden="true" />
+            </Menu.Button>
+          </>
+        )}
+      </Menu>
+      {/* <div>
         <button
           type="button"
           onClick={openModal}
@@ -24,7 +51,7 @@ export default function ModalReview({ modalTitle, buttonTitle, children }) {
         >
           Edit
         </button>
-      </div>
+      </div> */}
 
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={closeModal}>
@@ -64,13 +91,20 @@ export default function ModalReview({ modalTitle, buttonTitle, children }) {
                     <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">
                       Switch Status
                     </h3>
-                    <div>Kandidat</div>
-
+                    <div>Kandidat  </div>
                     <br></br>
-                    Score Filtering Test :
-                    <div></div>
+                    Score Filtering Test :<div></div>
                     <br></br>
-                    <div>Status :</div>
+                    <div>
+                      Status :{" "}
+                      <select className="select max-w-xs font-xs border border-gray-300">
+                      <option>Ready Test</option>
+                      <option>Passed</option>
+                        <option>Recommended</option>
+                        <option>Contracted</option>
+                        <option>Failed</option>
+                      </select>
+                    </div>
                     <br></br>
                     <div>
                       Review :
