@@ -2,7 +2,7 @@ import { call, put } from 'redux-saga/effects'
 import BatchApi from '../../api/BatchApi'
 import {
     GetBatchSuccess, GetBatchFailed, GetOneBatchSuccess, GetOneBatchFailed
-    , EditBatchSuccess, EditBatchFailed,
+    , EditBatchSuccess, EditBatchFailed, DeleteBatchSuccess, DeleteBatchFailed
 } from '../Action/BatchAction'
 
 function* handleGetBatch() {
@@ -27,17 +27,27 @@ function* handleGetBatch() {
 function* handleEditBatch(action) {
     const { payload } = action
     try {
-        const result = yield call(BatchApi.UpdateFile, payload)
+        const result = yield call(BatchApi.editBatch, payload)
         yield put(EditBatchSuccess(result.data))
     } catch (error) {
         yield put(EditBatchFailed(error))
     }
 }
 
+function* handleDeleteBatch(action) {
+    const { payload } = action
+    try {
+        const result = yield call(BatchApi.removeBatch, payload)
+        yield put(DeleteBatchSuccess(result.data))
+    } catch (error) {
+        yield put(DeleteBatchFailed(error))
+    }
+}
 
 export {
     handleEditBatch,
     //handleGetOneBatch,
     handleGetBatch,
+    handleDeleteBatch
 
 }

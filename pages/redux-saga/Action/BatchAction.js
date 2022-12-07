@@ -47,3 +47,19 @@ export const EditBatchFailed =(payload)=>({
     type:ActionTypeBatch.EDIT_BATCH_FAILED,
     payload
 })
+
+
+export const DeleteBatchRequest = (payload) =>({
+    type:ActionTypeBatch.DEL_BATCH_REQUEST,
+    payload
+})
+
+export const DeleteBatchSuccess = (payload) => ({
+    type:ActionTypeBatch.DEL_BATCH_SUCCESS,
+    payload
+})
+
+export const DeleteBatchFailed =(payload)=>({
+    type:ActionTypeBatch.DEL_BATCH_FAILED,
+    payload
+})

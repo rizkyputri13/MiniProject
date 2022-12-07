@@ -1,339 +1,548 @@
-import LandingPage from "../component/layout/LandingPage";
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/solid";
-import { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { GetJobTypeRequest } from "../redux-saga/Action/JobTypeAction";
-import { GetJobCategoryRequest } from "../redux-saga/Action/JobCategoryAction";
-import { GetJobPostRequest } from "../redux-saga/Action/JobPostAction";
-import Head from "next/head";
-import JobDisclosure from "../component/jobhiring/JobDisclosure";
-import JobCard from "../component/jobhiring/JobCard";
-import Pagination from "../component/jobhiring/Pagination";
+/* eslint-disable react/jsx-no-undef */
+import Page from "../../component/commons/Page";
+import AppLayout from "../../component/layout/AppLayout";
+import { useEffect, useState } from "react";
+import { useSelector, useDispatch, batch } from "react-redux";
+import { GetBatchRequest } from "../../redux-saga/Action/BatchAction";
+import { Menu, Transition } from "@headlessui/react";
+import Link from "next/link";
+import { ToastContainer, toast } from "react-toastify";
+import React, { Fragment } from "react";
+import {
+  DotsVerticalIcon,
+  PencilAltIcon,
+  TrashIcon,
+  ChevronRightIcon,
+  ChevronLeftIcon,
+} from "@heroicons/react/solid";
+import ListBox from "../../component/ListBox";
 
-const Jobs = () => {
+const columns = [
+  { name: "NO" },
+  { name: "BATCH" },
+  { name: "TECHNOLOGY" },
+  { name: "MEMBERS" },
+  { name: "PERIODE" },
+  { name: "TRAINER" },
+  { name: "STATUS" },
+  //{ name: "ACTION" },
+];
+
+function classNames(...classes) {
+  return classes.filter(Boolean).join(" ");
+}
+
+export default function Batch() {
   const dispatch = useDispatch();
-  const { jobtypes } = useSelector((state) => state.jotyStated);
-  const { jobcategories } = useSelector((state) => state.jocaStated);
-  const { jobposts } = useSelector((state) => state.jopoStated);
+  const [batchs, setBatchs] = useState([]);
+  const [pageNumbers, setPageNumbers] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageRange, setPageRange] = useState(0);
+  const [display, setDisplay] = useState(false);
+  const [filter, setFilter] = useState({
+    input: "",
+  });
 
-  const [keyword, setKeyword] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [categoryTerm, setCategoryTerm] = useState("");
-  const [location, setLocation] = useState("Indonesia");
-  const [viewKeyword, setViewKeyword] = useState("");
-  const [category, setCategory] = useState("1");
-  const [filteredJopo, setFilteredJopo] = useState();
-  const [jotyTerm, setJotyTerm] = useState(["5"]);
-  const [expTerm, setExpTerm] = useState(["1"]);
+  const handleGetBatch = useSelector((state) => state.batchStated.batchs);
 
-  const handleSearch = () => {
-    setSearchTerm(keyword);
-    setCategoryTerm(category);
-  };
+  // const [keyword, setKeyword] = useState("");
+  // const [searchTerm, setSearchTerm] = useState("");
+  // const [categoryTerm, setCategoryTerm] = useState("");
+  // const [viewKeyword, setViewKeyword] = useState("");
+  // const [category, setCategory] = useState("1");
+  // const [filteredStatus, setFilteredStatus] = useState();
 
-  const filteredJopos = useMemo(() => {
-    if (categoryTerm.length > 0 || searchTerm.length > 0) {
-      setViewKeyword(searchTerm);
-      return jobposts.filter((jopo) =>
-      {
-        return (
-          (jopo.jopoTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          jopo.jopoClit.clitName.toLowerCase().includes(searchTerm.toLowerCase())) &&
-          categoryTerm.includes(jopo.jopoJoca.jocaId)
-        )
-      }
-      );
-    }
-    return jobposts;
-  }, [searchTerm, categoryTerm, jobposts]);
-
-  const handleJotyChange = (e) => {
-    let newArray = [...jotyTerm, e.target.id];
-    if (jotyTerm.includes(e.target.id)) {
-      newArray = newArray.filter((item) => item !== e.target.id);
-    }
-    setJotyTerm(newArray);
-  };
-
-  const handleExpChange = (e) => {
-    let newArray = [...expTerm, e.target.name];
-    if (expTerm.includes(e.target.name)) {
-      newArray = newArray.filter((item) => item !== e.target.name);
-    }
-    setExpTerm(newArray);
-  };
+  // const handleSearch = () => {
+  //   setSearchTerm(keyword);
+  //   setCategoryTerm(category);
+  // };
 
   useEffect(() => {
-    setFilteredJopo(jobposts);
-  }, [jobposts]);
+    dispatch(GetBatchRequest());
+    console.log(handleGetBatch);
+  }, [dispatch, handleGetBatch]);
+
+  // const handleOnChange = (name) => (event) => {
+  //   setFilter({ ...filter, [name]: event.target.value });
+  // };
+
+  // useEffect(() => {
+  //   setBatchs(
+  //     Array.isArray(batchs) &&
+  //       batchs.filter((data) =>
+  //         data.batchName.toLowerCase().includes(filter.input.toLowerCase())
+  //       )
+  //   );
+  // }, [batchs, filter.input]);
+
+  // const onSearch = (e) => {
+  //   e.preventDefault();
+  //   setBatchs(
+  //     Array.isArray(batchs) &&
+  //       batchs.filter((data) =>
+  //         data.batchName.toLowerCase().includes(filter.input.toLowerCase())
+  //       )
+  //   );
+  // };
 
   useEffect(() => {
-    dispatch(GetJobPostRequest());
-    dispatch(GetJobTypeRequest());
-    dispatch(GetJobCategoryRequest());
-  }, []);
+    setPageNumbers(
+      Array.from({ length: Math.ceil(handleGetBatch.length / 5) }, (v, i) =>
+        i + 1 === 1
+          ? { number: i + 1, active: true }
+          : { number: i + 1, active: false }
+      )
+    );
+    setCurrentPage(1);
+    setPageRange(0);
+  }, [handleGetBatch]);
 
-  const logos = [
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/ASTRA_international.svg/320px-ASTRA_international.svg.png",
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Bank_Central_Asia.svg/320px-Bank_Central_Asia.svg.png",
-    "https://static.wixstatic.com/media/ab2f5c_4090dbbaeafb4b0d975bd44c6cd498f6~mv2_d_5000_3314_s_4_2.png/v1/fill/w_262,h_78,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/code-colored.png",
-    "https://static.wixstatic.com/media/62eb01_fc70b342a57f453897a70430a9e7dd10~mv2_d_5000_1300_s_2.png/v1/fill/w_181,h_46,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/BNP%20Paribas.png",
-    // "https://static.wixstatic.com/media/62eb01_b64d1391272f47bfbde9f4cd4e2da7d4~mv2.png/v1/fill/w_208,h_32,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/CIMB%20Niaga.png",
-    // "https://static.wixstatic.com/media/62eb01_03a53ec2fff64aa283688eb5974750bc~mv2.png/v1/fill/w_157,h_103,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/Bank%20Danamon.png",
-    // "https://static.wixstatic.com/media/62eb01_9bb807787f98493a9cf8f1811d0b3c3f~mv2.png/v1/fill/w_164,h_74,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/Prudential.png",
-    // "https://static.wixstatic.com/media/62eb01_441352dc7d2f47dfab7b4361cbd6214e~mv2.png/v1/fill/w_150,h_83,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/Erajaya.png",
-    // "https://static.wixstatic.com/media/62eb01_06aba73de47c4d3dbc0e4a9d09a02865~mv2.png/v1/fill/w_181,h_124,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/Logo%20Bank%20Mandiri.png"
-  ];
+  //   const onDelete = async (id) => {
+  //     dispatch(DelBatchRequest(id));
+  //     toast.success('Data has been deleted.')
+  // }
+
+  const onClick = (id) => {
+    setDisplayEdit(true);
+    setId(id);
+  };
+
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+
+  const handleChange = (e) => {
+    setSearchKeyword(e.target.value);
+  };
+  const handleChangeStatus = (status) => {
+    setStatusFilter(status);
+    console.log(statusFilter.status);
+  };
+
+  const filteredBatch =
+    statusFilter.status === "Status"
+      ? searchKeyword.length > 0
+        ? batchs.filter(
+            (data) =>
+              data.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+              data.title.toLowerCase().includes(searchKeyword.toLowerCase())
+          )
+        : batchs
+      : batchs
+          .filter((data) => data.statusBatch === statusFilter.status)
+          .filter(
+            (data) =>
+              data.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+              data.title.toLowerCase().includes(searchKeyword.toLowerCase())
+          );
 
   return (
-    <LandingPage>
-      <Head>
-        <title>Lowongan Pekerjaan | CodeAcademy</title>
-      </Head>
-      <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
-        <p className="text-2xl font-semibold text-gray-800">Our Network</p>
-
-        {/* Carousel */}
-        <div className="flex gap-x-5 py-6 justify-center items-center px-16 border shadow my-5 rounded overflow-scroll md:overflow-auto">
-          <ChevronLeftIcon className="h-16 w-16 text-gray-600 cursor-pointer" />
-          {logos.map((logo) => (
-            <img
-              key={logo}
-              src={logo}
-              className="h-12"
-              alt="network-logo"
-            />
-          ))}
-          <ChevronRightIcon className="h-16 w-16 text-gray-600 cursor-pointer" />
-        </div>
-
-        {/* Search */}
-        <div className="flex flex-col items-center md:items-start md:flex-row gap-y-4 md:gap-y-0 gap-x-5 py-5 justify-center px-16 border shadow my-5 rounded">
-          <input
-            type="text"
-            placeholder="Jabatan, Kata Kunci, Perusahaan"
-            className="rounded w-full md:w-4/12 bg-gray-50 border-gray-200"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Location"
-            className="rounded w-full md:w-4/12 bg-gray-50 border-gray-200"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-          />
-          <select
-            className="rounded w-full md:w-4/12 bg-gray-50 border-gray-200"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          >
-            {jobcategories.map((joca) => (
-              <option key={joca.jocaId} value={joca.jocaId}>
-                {joca.jocaName}
-              </option>
-            ))}
-          </select>
-          <button
-            onClick={handleSearch}
-            className="whitespace-nowrap inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 w-full md:w-min"
-          >
-            Search
-          </button>
-        </div>
-
-        <p className="text-xl mb-3 mt-6 font-semibold text-gray-800">
-          {filteredJopos?.length} Lowongan Kerja {viewKeyword} di Indonesia
-        </p>
-
-        {/* Container */}
-        <div className="shadow border flex flex-col md:flex-row items-center md:items-start justify-center p-5 gap-5 rounded">
-          {/* Sidebar */}
-          <div className="border border-gray-200 w-11/12 md:w-3/12 px-5 py-3 flex flex-col gap-y-5">
-            <p className="font-semibold text-lg border-b pb-3">
-              Filter Pencarianmu
-            </p>
-
-            <JobDisclosure title="Tampilkan Berdasarkan">
-              <div className="flex gap-2 justify-around">
-                <button className="whitespace-nowrap inline-flex items-center justify-center px-4 py-1 border border-transparent rounded-md shadow-sm text-sm  text-white bg-orange-600 hover:bg-orange-700 font-medium">
-                  Match
-                </button>
-                <button className="whitespace-nowrap inline-flex items-center justify-center px-4 py-1 border border-transparent rounded-md shadow-sm text-sm text-white bg-orange-600 hover:bg-orange-700 font-medium">
-                  Newest
-                </button>
+    <AppLayout>
+      <Page
+        name={"Batch"}
+        setDisplay={setDisplay}
+        title="Batch"
+        titleButton="Create"
+        onClick={() => navigate("/app/batch/")}
+      >
+        <div className=" flex justify-center">
+          <div className="w-full">
+            <div className="input-group relative flex justify-center items-stretch w-full mb-10">
+              <p className="text-sm mx-2 py-1">Search by category</p>
+              <div>
+              <input
+                    value={searchKeyword}
+                    onChange={(e) => handleChange(e)}
+                    type='search'
+                    id='default-search'
+                    autoComplete='off'
+                    className='block w-full p-2 pl-10 text-sm text-gray-500 border border-gray-300  rounded focus:ring-blue-500 focus:border-blue-500 placeholder-gray-300'
+                    placeholder='batch, category,...'
+                    required
+                  />
               </div>
-            </JobDisclosure>
-
-            <JobDisclosure title="Tipe Pekerjaan">
-              <div className="ml-3 text-gray-700 text-[14px] font-medium">
-                {jobtypes.map((joty) => (
-                  <>
-                    <input
-                      type="checkbox"
-                      id={joty.jotyId}
-                      name={joty.jotyName}
-                      value={joty.jotyName}
-                      className="mr-1"
-                      checked={jotyTerm.includes(joty.jotyId.toString())}
-                      onChange={handleJotyChange}
-                    />
-                    <label for={joty.jotyName}>{joty.jotyName}</label>
-                    <br />
-                  </>
-                ))}
-              </div>
-            </JobDisclosure>
-            <JobDisclosure title="Pengalaman">
-              <div className="ml-3 text-gray-700 text-[14px] font-medium">
-                <input
-                  type="checkbox"
-                  id="1"
-                  name="1"
-                  value="&lt;1 Tahun"
-                  className="mr-2"
-                  checked={(e) => expTerm.includes(e.target.name)}
-                  onChange={handleExpChange}
-                />
-                <label for="1tahun">&lt;1 Tahun</label>
-                <br />
-                <input
-                  type="checkbox"
-                  id="3tahun"
-                  name="1,3"
-                  value="1-3 Tahun"
-                  className="mr-2"
-                  onChange={handleExpChange}
-                />
-                <label for="3tahun">1-3 Tahun</label>
-                <br />
-                <input
-                  type="checkbox"
-                  id="5tahun"
-                  name="5,10"
-                  value="5-10 Tahun"
-                  className="mr-2"
-                  onChange={handleExpChange}
-                />
-                <label for="5tahun">5-10 Tahun</label>
-                <br />
-                <input
-                  type="checkbox"
-                  id="10tahun"
-                  name="10"
-                  value="> 10 Tahun"
-                  className="mr-2"
-                  onChange={handleExpChange}
-                />
-                <label for="10tahun">10 Tahun</label>
-                <br />
-              </div>
-            </JobDisclosure>
-            <JobDisclosure title="Terupdate">
-              <div className="ml-3 text-gray-700 text-[14px] font-medium">
-                <input
-                  type="radio"
-                  id="24jam"
-                  name="updated"
-                  value="24 Jam Terakhir"
-                  className="mr-2"
-                />
-                <label for="24jam">24 Jam Terakhir</label>
-                <br />
-                <input
-                  type="radio"
-                  id="seminggu"
-                  name="updated"
-                  value="Seminggu Terakhir"
-                  className="mr-2"
-                />
-                <label for="seminggu">Seminggu Terakhir</label>
-                <br />
-                <input
-                  type="radio"
-                  id="sebulan"
-                  name="updated"
-                  value="Sebulan Terakhir"
-                  className="mr-2"
-                />
-                <label for="sebulan">Sebulan Terakhir</label>
-                <br />
-                <input
-                  type="radio"
-                  id="kapanpun"
-                  name="updated"
-                  value="Kapan pun"
-                  className="mr-2"
-                />
-                <label for="kapanpun">Kapan pun</label>
-              </div>
-            </JobDisclosure>
+              <ListBox changeStatus={handleChangeStatus} />
+              <button
+                type="submit"
+                //onClick={(e) => onSearch(e)}
+                className="btn px-3 py-2 bg-orange-600 text-white text-xs leading-tight uppercase rounded shadow-md hover:bg-red-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-purple-500 transition duration-150 ease-in-out flex items-center"
+              >
+                {" "}
+                Search
+                {/* <svg
+                  aria-hidden="true"
+                  focusable="false"
+                  data-prefix="fas"
+                  data-icon="search"
+                  className="w-3"
+                  role="img"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 512 512"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
+                  ></path>
+                </svg> */}
+              </button>
+            </div>
           </div>
-          {/* Job Card */}
-          <div>
-            <div className="min-w-8/12 grid grid-cols-1 lg:grid-cols-2 grid-rows-4 grid-flow-row gap-4">
-              {/* <div className="max-w-8/12 flex flex-wrap gap-4"> */}
-              {/* {jobposts.length !== 0 ? (
-                jobposts
-                  .filter((jopo) => {
-                    if (keyword) {
-                      return jopo.jopoTitle
-                        .toLowerCase()
-                        .includes(keyword.toLowerCase());
-                    }
-                    return jopo;
-                  })
-                  .map((jopo) => (
-                    <JobCard
-                      key={jopo.jopoId}
-                      title={jopo.jopoTitle}
-                      publishDate={jopo.jopoPublishDate}
-                      minExp={jopo.jopoMinExperience}
-                      maxExp={jopo.jopoMaxExperience}
-                      clitName={jopo.jopoClit.clitName}
-                      clitLogo={jopo.jopoClit.clitLogo}
-                    />
-                  ))
-              ) : (
-                <p>No Job Available</p>
-              )} */}
-              {filteredJopos && filteredJopos.length > 0 ? (
-                filteredJopos
-                  // .filter((jopo) => (
-                  //   (jopo.jopoTitle.toLowerCase().includes(keyword.toLowerCase()) ||
-                  //       jopo.jopoClit.clitName.toLowerCase().includes(keyword.toLowerCase()))
-                  //       && jopo.jopoJoca.jocaId == category
-                  // ))
-                  .filter((jopo) =>
-                    jotyTerm.includes(jopo.jopoJoty.jotyId.toString())
-                  )
-                  .map((jopo) => (
-                    <JobCard
-                      key={jopo.jopoId}
-                      title={jopo.jopoTitle}
-                      publishDate={jopo.jopoPublishDate}
-                      minExp={jopo.jopoMinExperience}
-                      maxExp={jopo.jopoMaxExperience}
-                      clitName={jopo.jopoClit.clitName}
-                      clitLogo={jopo.jopoClit.clitLogo}
-                    />
-                  ))
-              ) : (
-                <div className="font-medium text-lg text-center w-full">
-                  <p>No Job Found</p>
+        </div>
+        <div className="sm:block">
+          <div className="align-middle inline-block min-w-full border-b border-gray-200 ">
+            <table className="min-w-full">
+              <thead className="border-y border-gray-200">
+                <tr key="col_names">
+                  {(columns || []).map((column) => (
+                    // eslint-disable-next-line react/jsx-key
+                    <th className="px-6 py-3 bg-gray-50 text-center text-xs font-medium text-gray-900 uppercase">
+                      <span className="">{column.name}</span>
+                    </th>
+                  ))}
+                  <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-900 uppercase tracking-wider" />
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-100">
+                {Array.isArray(handleGetBatch) &&
+                  handleGetBatch
+                    .slice((currentPage - 1) * 10, currentPage * 10)
+                    .map((data) => (
+                      <>
+                        {filteredBatch.map((data, i) => (
+                          <tr key={data.batchId}>
+                            <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
+                              {i + 1}
+                            </td>
+                            <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
+                              <div title={data.name}>{data.name}</div>
+                            </td>
+                            <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
+                            <div title={data.batchProg.title}>{data.batchProg.title}</div>
+                            </td>
+                            <td className="px-6 py-2 text-end whitespace-nowrap text-sm text-gray-900">
+                              <div>
+                                <img
+                                  className="w-8 h-8 border-2 border-white rounded-full dark:border-gray-800"
+                                  src="../assets/images/yuri.jpg"
+                                  alt=""
+                                />
+                                {/* {data.batchProg.progTotalStudent} + */}
+                              </div>
+                            </td>
+                            <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
+                              {data.batchStartDate}
+                              <br></br>
+                              {data.batchEndDate}
+                            </td>
+                            <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
+                              {data.batchInstructor.empEntity.userFirstName}{" "}
+                              {data.batchInstructor.empEntity.userLastName}
+                            </td>
+                            <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
+                              {data.batchStatus}
+                            </td>
+
+                            {/*Option*/}
+                            <td className="pr-6">
+                              <Menu
+                                as="div"
+                                className="relative flex justify-end items-center"
+                              >
+                                {({ open }) => (
+                                  <>
+                                    <Menu.Button className="w-8 h-8 bg-white inline-flex items-center justify-center text-gray-600 rounded-full hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 ">
+                                      <span className="sr-only">
+                                        Open options
+                                      </span>
+                                      <DotsVerticalIcon
+                                        className="w-5 h-5"
+                                        aria-hidden="true"
+                                      />
+                                    </Menu.Button>
+                                    <Transition
+                                      show={open}
+                                      as={Fragment}
+                                      enter="transition ease-out duration-100"
+                                      enterFrom="transform opacity-0 scale-95"
+                                      enterTo="transform opacity-100 scale-100"
+                                      leave="transition ease-in duration-75"
+                                      leaveFrom="transform opacity-100 scale-100"
+                                      leaveTo="transform opacity-0 scale-95"
+                                    >
+                                      <Menu.Items
+                                        static
+                                        className="mx-3 origin-top-right absolute right-7 top-0 w-48 mt-1 rounded-md shadow-lg z-10 bg-gray-100 ring-1 ring-gray-900 ring-opacity-5 divide-y divide-gray-300 focus:outline-none"
+                                      >
+                                        <div className="py-1">
+                                          <Menu.Item>
+                                            {({ active }) => (
+                                              <Link
+                                                href={`/app/batch/edit/${data.batchId}`}
+                                                onClick={() =>
+                                                  onClick(data.batchId)
+                                                }
+                                                className={classNames(
+                                                  active
+                                                    ? "bg-gray-300 text-gray-700"
+                                                    : "text-gray-900",
+                                                  "group flex items-center px-4 py-2 text-sm"
+                                                )}
+                                              >
+                                                {/* <PencilAltIcon
+                                                className="mr-3 h-5 w-5 text-gray-700 group-hover:text-gray-500"
+                                                aria-hidden="true"
+                                              /> */}
+                                                Edit
+                                              </Link>
+                                            )}
+                                          </Menu.Item>
+                                        </div>
+                                        <div className="py-1">
+                                          <Menu.Item>
+                                            {({ active }) => (
+                                              <Link
+                                                href={`/app/batch/close/${data.batchId}`}
+                                                onClick={() =>
+                                                  onClick(data.batchId)
+                                                }
+                                                className={classNames(
+                                                  active
+                                                    ? "bg-gray-300 text-gray-700"
+                                                    : "text-gray-900",
+                                                  "group flex items-center px-4 py-2 text-sm"
+                                                )}
+                                              >
+                                                {/* <PencilAltIcon
+                                                className="mr-3 h-5 w-5 text-gray-700 group-hover:text-gray-500"
+                                                aria-hidden="true"
+                                              /> */}
+                                                Close Batch
+                                              </Link>
+                                            )}
+                                          </Menu.Item>
+                                        </div>
+                                        <div className="py-1">
+                                          <Menu.Item>
+                                            {({ active }) => (
+                                              <Link
+                                                href={`/app/batch/delete/${data.batchId}`}
+                                                onClick={() => {
+                                                  if (
+                                                    window.confirm(
+                                                      "Delete this Batch ?"
+                                                    )
+                                                  )
+                                                    onDelete(data.batchId);
+                                                }}
+                                                className={classNames(
+                                                  active
+                                                    ? "bg-gray-300 text-gray-700"
+                                                    : "text-gray-900",
+                                                  "group flex items-center px-4 py-2 text-sm"
+                                                )}
+                                              >
+                                                {/* <TrashIcon
+                                                className="mr-3 h-5 w-5 text-gray-700 group-hover:text-gray-500"
+                                                aria-hidden="true"
+                                              /> */}
+                                                Delete Batch
+                                              </Link>
+                                            )}
+                                          </Menu.Item>
+                                        </div>
+                                        <div className="py-1">
+                                          <Menu.Item>
+                                            {({ active }) => (
+                                              <Link
+                                                href={`/app/batch/set/${data.batchId}`}
+                                                onClick={() =>
+                                                  onClick(data.batchId)
+                                                }
+                                                className={classNames(
+                                                  active
+                                                    ? "bg-gray-300 text-gray-700"
+                                                    : "text-gray-900",
+                                                  "group flex items-center px-4 py-2 text-sm"
+                                                )}
+                                              >
+                                                {/* <PencilAltIcon
+                                                className="mr-3 h-5 w-5 text-gray-700 group-hover:text-gray-500"
+                                                aria-hidden="true"
+                                              /> */}
+                                                Set to Running
+                                              </Link>
+                                            )}
+                                          </Menu.Item>
+                                        </div>
+                                        <div className="py-1">
+                                          <Menu.Item>
+                                            {({ active }) => (
+                                              <Link
+                                                href={`/app/batch/evaluation/${data.batchId}`}
+                                                onClick={() =>
+                                                  onClick(data.batchId)
+                                                }
+                                                className={classNames(
+                                                  active
+                                                    ? "bg-gray-300 text-gray-700"
+                                                    : "text-gray-900",
+                                                  "group flex items-center px-4 py-2 text-sm"
+                                                )}
+                                              >
+                                                Evaluation
+                                              </Link>
+                                            )}
+                                          </Menu.Item>
+                                        </div>
+                                      </Menu.Items>
+                                    </Transition>
+                                  </>
+                                )}
+                              </Menu>
+                            </td>
+                          </tr>
+                        ))}
+                      </>
+                    ))}
+              </tbody>
+            </table>
+
+            {filteredBatch.length === 0 && searchKeyword !== "" && (
+              <h2 className="p-3 text-gray-500 text-center text-sm font-semibold">
+                Sorry, cannot found the keyword {searchKeyword} 
+              </h2>
+            )}
+            {/* {handleGetBatch.length === 0 && (
+              <div className="px-6 py-3 text-center whitespace-nowrap text-sm font-medium text-gray-900">
+                {" "}
+                Data Not Found...
+              </div>
+            )} */}
+
+            <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-center">
+                {/* <div>
+                  <p className="text-sm text-gray-700">
+                    Showing{" "}
+                    <span className="font-medium">
+                      {(currentPage - 1) * 10 + 1}
+                    </span>{" "}
+                    to{" "}
+                    <span className="font-medium">
+                      {currentPage * 10 < handleGetBatch.length
+                        ? currentPage * 10
+                        : handleGetBatch.length}
+                    </span>{" "}
+                    of{" "}
+                    <span className="font-medium">{handleGetBatch.length}</span>{" "}
+                    results
+                  </p>
+                </div> */}
+                <br></br>
+                <br></br>
+                <div>
+                  <nav
+                    className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                    aria-label="Pagination"
+                  >
+                    <button
+                      onClick={() => {
+                        setCurrentPage(1);
+                        setPageNumbers(
+                          [...pageNumbers].map((val) =>
+                            val.number === 1
+                              ? { ...val, active: true }
+                              : { ...val, active: false }
+                          )
+                        );
+                        setPageRange(0);
+                      }}
+                      className="relative inline-flex items-center px-3 py-2 font-medium text-gray-600 hover:text-orange-600"
+                    >
+                      <span className="underline">First</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        const min = 0;
+                        if (pageRange > min) {
+                          setPageRange(pageRange - 1);
+                        }
+                      }}
+                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                    >
+                      <span className="sr-only">Previous</span>
+                      <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
+                    </button>
+                    {/* Current: "z-10 bg-indigo-50 border-indigo-500 text-indigo-600", Default: "bg-white border-gray-300 text-gray-500 hover:bg-gray-50" */}
+
+                    {pageNumbers
+                      .slice(pageRange * 4, pageRange * 4 + 4)
+                      .map((el) => (
+                        // eslint-disable-next-line react/jsx-key
+                        <button
+                          onClick={() => {
+                            setCurrentPage(el.number);
+                            setPageNumbers(
+                              [...pageNumbers].map((val) =>
+                                val.number === el.number
+                                  ? { ...val, active: true }
+                                  : { ...val, active: false }
+                              )
+                            );
+                          }}
+                          aria-current="page"
+                          className={classNames(
+                            el.active
+                              ? "z-20 bg-orange-100 border-orange-600 text-orange-900"
+                              : "z-10 bg-white border-gray-300 text-gray-600",
+                            "relative inline-flex items-center px-4 py-2 border text-sm font-medium"
+                          )}
+                        >
+                          {el.number}
+                        </button>
+                      ))}
+                    <button
+                      onClick={() => {
+                        const max = Math.ceil(pageNumbers.length / 4) - 1;
+                        if (pageRange < max) {
+                          setPageRange(pageRange + 1);
+                        }
+                      }}
+                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                    >
+                      <span className="sr-only">Next</span>
+                      <ChevronRightIcon
+                        className="h-5 w-5"
+                        aria-hidden="true"
+                      />
+                    </button>
+                    <button
+                      onClick={() => {
+                        const max = Math.ceil(pageNumbers.length / 4) - 1;
+                        setCurrentPage(pageNumbers.length);
+                        setPageNumbers(
+                          [...pageNumbers].map((val) =>
+                            val.number === pageNumbers.length
+                              ? { ...val, active: true }
+                              : { ...val, active: false }
+                          )
+                        );
+                        setPageRange(max);
+                      }}
+                      className="relative inline-flex items-center px-3 py-2 font-medium text-gray-600 hover:text-orange-600"
+                    >
+                      <span className="underline">Last</span>
+                    </button>
+                  </nav>
                 </div>
-              )}
+              </div>
             </div>
-            <div className="mt-5 flex justify-center items-end">
-              {filteredJopos.length > 0 &&
-              <Pagination />
-              }
-            </div>
+            
           </div>
         </div>
-      </div>
-    </LandingPage>
+        <div className="z-30">
+          <ToastContainer autoClose={2000} />
+        </div>
+      </Page>
+    </AppLayout>
   );
-};
-
-export default Jobs;
+}

@@ -1,9 +1,13 @@
 /* eslint-disable react/jsx-no-undef */
 import Page from "../../component/commons/Page";
 import AppLayout from "../../component/layout/AppLayout";
-import { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { GetBatchRequest } from "../../redux-saga/Action/BatchAction";
+import { useEffect, useState, useMemo } from "react";
+import { useSelector, useDispatch, batch } from "react-redux";
+import {
+  GetBatchRequest,
+  EditBatchRequest,
+  DeleteBatchRequest,
+} from "../../redux-saga/Action/BatchAction";
 import { Menu, Transition } from "@headlessui/react";
 import Link from "next/link";
 import { ToastContainer, toast } from "react-toastify";
@@ -32,7 +36,7 @@ function classNames(...classes) {
 
 export default function Batch() {
   const dispatch = useDispatch();
-  const [batchs, setBatchs] = useState([])
+  const [batchs, setBatchs] = useState([]);
   const [pageNumbers, setPageNumbers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageRange, setPageRange] = useState(0);
@@ -40,40 +44,53 @@ export default function Batch() {
   const [filter, setFilter] = useState({
     input: "",
   });
-  const [searchTerm, setSearchTerm] = useState("");
-  const [categoryTerm, setCategoryTerm] = useState("");
 
   const handleGetBatch = useSelector((state) => state.batchStated.batchs);
+  const handleEditBatch = useSelector((state) => state.batchStated.batchs);
+  //const handleDeleteBatch = useSelector((state) => state.batchStated.batchs);
+
+  const [keyword, setKeyword] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryTerm, setCategoryTerm] = useState("");
+  const [viewKeyword, setViewKeyword] = useState("");
+  const [category, setCategory] = useState("1");
+
+  const handleSearch = () => {
+    setSearchTerm(keyword);
+    setCategoryTerm(category);
+  };
+
+  const filteredBatchs = useMemo(() => {
+    if (categoryTerm.length > 0 || searchTerm.length > 0) {
+      //setCurrentPage(1);
+      setViewKeyword(searchTerm);
+      return handleGetBatch.filter((data) => {
+        return (
+          (data.batchName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            data.batchProg.progTitle
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase())) &&
+          categoryTerm.includes(data.batchId)
+        );
+      });
+    }
+    return handleGetBatch;
+  }, [searchTerm, categoryTerm, handleGetBatch]);
 
   useEffect(() => {
     dispatch(GetBatchRequest());
     console.log(handleGetBatch);
   }, [dispatch, handleGetBatch]);
 
-
-
-  // const handleOnChange = (name) => (event) => {
-  //   setFilter({ ...filter, [name]: event.target.value });
-  // };
+  useEffect(() => {
+    dispatch(EditBatchRequest());
+    console.log(handleEditBatch);
+  }, [dispatch, handleEditBatch]);
 
   // useEffect(() => {
-  //   setBatchs(
-  //     Array.isArray(handleGetBatch) &&
-  //    handleGetBatch.filter((data) =>
-  //         data.batchName.toLowerCase().includes(filter.input.toLowerCase())
-  //       )
-  //   );
-  // }, [handleGetBatch, filter.input]);
-
-  // const onSearch = (e) => {
-  //   e.preventDefault();
-  //   setBatchs(
-  //     Array.isArray(handleGetBatch) &&
-  //       handleGetBatch.filter((data) =>
-  //         data.batchName.toLowerCase().includes(filter.input.toLowerCase())
-  //       )
-  //   );
-  // };
+  //   dispatch(DeleteBatchRequest());
+  //   console.log(handleDeleteBatch);
+  // }, [dispatch, handleDeleteBatch]);
 
   useEffect(() => {
     setPageNumbers(
@@ -87,19 +104,15 @@ export default function Batch() {
     setPageRange(0);
   }, [handleGetBatch]);
 
-  
-
-
-//   const onDelete = async (id) => {
-//     dispatch(DelBatchRequest(id));
-//     toast.success('Data has been deleted.')
-// }
+  const onDelete = async (id) => {
+    dispatch(DeleteBatchRequest(id));
+    //toast.success('Data has been deleted.')
+  };
 
   const onClick = (id) => {
     setDisplayEdit(true);
     setId(id);
   };
-
 
   return (
     <AppLayout>
@@ -116,23 +129,34 @@ export default function Batch() {
               <p className="text-sm mx-2 py-1">Search by category</p>
               <input
                 type="search"
-                //onChange={handleOnChange("input")}
                 className="form-control relative w-48 block px-2 py-0.5 text-xs font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:border-transparent focus:text-gray-700 focus:ring-1 focus:ring-offset-1 focus:ring-purple-500 focus:outline-none"
                 placeholder="batch, technology, trainer"
                 aria-label="Search"
                 aria-describedby="button-addon2"
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
               />
-              <select className="flex rounded max-w-xs px-4 py-0.5 text-xs ">
+              <select
+                className="flex rounded max-w-xs px-8 py-0.5 text-xs "
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+              >
                 <option disabled selected>
                   Status
                 </option>
                 <option>New</option>
                 <option>Running</option>
                 <option>Closed</option>
+
+                {/* {batchs.map((data) => (
+                  <option key={data.batchId} value={data.batchId}>
+                    {data.batchStatus}
+                  </option>
+                ))} */}
               </select>
               <button
                 type="submit"
-                onClick={(e) => onSearch(e)}
+                onClick={handleSearch}
                 className="btn px-3 py-2 bg-orange-600 text-white text-xs leading-tight uppercase rounded shadow-md hover:bg-red-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-purple-500 transition duration-150 ease-in-out flex items-center"
               >
                 {" "}
@@ -171,9 +195,11 @@ export default function Batch() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
-                {Array.isArray(handleGetBatch) &&
-                  handleGetBatch
-                    .slice((currentPage - 1) * 10, currentPage * 10)
+              {/* {filteredBatchs.map && filteredBatchs.length > 0 ? (
+                  filteredBatchs.map((data) => */}
+                {Array.isArray(filteredBatchs) &&
+                  filteredBatchs
+                    .slice((currentPage - 1) * 5, currentPage * 5)
                     .map((data) => (
                       <>
                         <tr key={data.batchId}>
@@ -185,12 +211,13 @@ export default function Batch() {
                           </td>
                           <td className="px-6 py-2 text-end whitespace-nowrap text-sm text-gray-900">
                             <div>
-                              {/* <img
+                              <img
                                 className="w-8 h-8 border-2 border-white rounded-full dark:border-gray-800"
                                 src="../assets/images/yuri.jpg"
                                 alt=""
-                              /> */}
-                              {data.batchProg.progTotalStudent} +
+                              />
+
+                              {/* {data.batchProg.progTotalStudent} + */}
                             </div>
                           </td>
                           <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
@@ -199,7 +226,8 @@ export default function Batch() {
                             {data.batchEndDate}
                           </td>
                           <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
-                            {data.batchInstructor.empEntity.userFirstName} {data.batchInstructor.empEntity.userLastName}
+                            {data.batchInstructor.empEntity.userFirstName}{" "}
+                            {data.batchInstructor.empEntity.userLastName}
                           </td>
                           <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
                             {data.batchStatus}
@@ -240,7 +268,7 @@ export default function Batch() {
                                         <Menu.Item>
                                           {({ active }) => (
                                             <Link
-                                              href="#"
+                                              href={`/app/batch/edit/${data.batchId}`}
                                               onClick={() =>
                                                 onClick(data.batchId)
                                               }
@@ -264,10 +292,15 @@ export default function Batch() {
                                         <Menu.Item>
                                           {({ active }) => (
                                             <Link
-                                              href="#"
-                                              onClick={() =>
-                                                onClick(data.batchId)
-                                              }
+                                              href={`/app/batch/close/${data.batchId}`}
+                                              onClick={() => {
+                                                if (
+                                                  window.confirm(
+                                                    "Close this Batch?"
+                                                  )
+                                                )
+                                                  onDelete(data.batchId);
+                                              }}
                                               className={classNames(
                                                 active
                                                   ? "bg-gray-300 text-gray-700"
@@ -275,10 +308,6 @@ export default function Batch() {
                                                 "group flex items-center px-4 py-2 text-sm"
                                               )}
                                             >
-                                              {/* <PencilAltIcon
-                                                className="mr-3 h-5 w-5 text-gray-700 group-hover:text-gray-500"
-                                                aria-hidden="true"
-                                              /> */}
                                               Close Batch
                                             </Link>
                                           )}
@@ -292,7 +321,7 @@ export default function Batch() {
                                               onClick={() => {
                                                 if (
                                                   window.confirm(
-                                                    "Delete this Batch ?"
+                                                    "Delete this Batch?"
                                                   )
                                                 )
                                                   onDelete(data.batchId);
@@ -304,10 +333,6 @@ export default function Batch() {
                                                 "group flex items-center px-4 py-2 text-sm"
                                               )}
                                             >
-                                              {/* <TrashIcon
-                                                className="mr-3 h-5 w-5 text-gray-700 group-hover:text-gray-500"
-                                                aria-hidden="true"
-                                              /> */}
                                               Delete Batch
                                             </Link>
                                           )}
@@ -317,7 +342,7 @@ export default function Batch() {
                                         <Menu.Item>
                                           {({ active }) => (
                                             <Link
-                                              href="#"
+                                              href={`/app/batch/set/${data.batchId}`}
                                               onClick={() =>
                                                 onClick(data.batchId)
                                               }
@@ -341,7 +366,7 @@ export default function Batch() {
                                         <Menu.Item>
                                           {({ active }) => (
                                             <Link
-                                              href="#"
+                                              href={`/app/batch/evaluation/${data.batchId}`}
                                               onClick={() =>
                                                 onClick(data.batchId)
                                               }

@@ -21,34 +21,24 @@ const getBatchStudent = async()=>{
     }
 }
 
-const getBatchEva = async()=>{
+const updateBatch = async(data)=>{
     try {
-        const result = await axios.get(`${domain}/api/batch/batchEva`)
-        const data = result.data
-        return data
-    } catch (error) {
-        return await error.message
-    }
-}
-
-const getEmp = async()=>{
-    try {
-        const result = await axios.get(`${domain}/api/batch/emp`)
-        const data = result.data
-        return data
-    } catch (error) {
-        return await error.message
-    }
-}
-
-const update = async(data)=>{
-    try {
-        const result = await axios.put(`${domain}/api/batch/updateBatch${data.batchId}`,data)
+        const result = await axios.put(`${domain}/api/batch/editBatch${data.batchId}`,data)
         return result
     } catch (error) {
         return await error.message
     }
 }
+
+const deleteBatch = async(id)=>{
+    try {
+        const result = await axios.delete(`${domain}/api/country/removeBatch${id}`)
+        return result
+    } catch (error) {
+        return await error.message
+    }
+}
+
 const findOne = async(id)=>{
     try {
         const result = await axios.get(`${domain}/api/batch/${id}`)
@@ -58,12 +48,4 @@ const findOne = async(id)=>{
     }
 }
 
-const filter = async(id)=>{
-    try {
-        const result = await axios.get(`${domain}/api/batch/${id}`)
-        return result.data 
-    } catch (error) {
-        return await error.message
-    }
-}
-export default {getBatch, getBatchStudent, getBatchEva,getEmp, update,findOne, filter}
+export default {getBatch, getBatchStudent,updateBatch,findOne, deleteBatch}

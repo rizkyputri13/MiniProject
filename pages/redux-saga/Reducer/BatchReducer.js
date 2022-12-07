@@ -19,6 +19,10 @@ const BatchReducer =(state = INIT_STATE,action) => {
             return {...state}
         case ActionTypeBatch.EDIT_BATCH_SUCCESS:
             return EditBatchSuccessed(state,action)
+            case ActionTypeBatch.DEL_BATCH_REQUEST:
+            return {...state}
+        case ActionTypeBatch.EDIT_BATCH_SUCCESS:
+            return DeleteBatchSuccessed(state,action)
         default:
             return state
     }
@@ -40,7 +44,16 @@ const GetBatchSuccessed = (state,action) => {
 
 const EditBatchSuccessed = (state,action) =>{
     const {payload}=action
-    const filterBatch = state.batchs.filter(el=>el.userEntityId !== payload.userEntityId)
+    const filterBatch = state.batchs.filter(el=>el.batchId !== payload.batchhId)
+    return {
+        ...state,
+        batchs: [...filterBatch,payload]
+    }
+}
+
+const DeleteBatchSuccessed = (state,action) =>{
+    const {payload}=action
+    const filterBatch = state.batchs.filter(el=>el.batchId !== payload.batchId)
     return {
         ...state,
         batchs: [...filterBatch,payload]
