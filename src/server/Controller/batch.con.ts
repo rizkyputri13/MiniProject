@@ -21,30 +21,30 @@ export class BatchController {
     return this.batchService.getBatch();
   }
 
-  @Get('/batchStudent')
-  public async getBatchStudent() {
-    return this.batchService.getBatchStudent();
-  }
+  // @Get('/batchStudent')
+  // public async getBatchStudent() {
+  //   return this.batchService.getBatchStudent();
+  // }
 
-  @Get('/batchEva')
-  public async getprogram() {
-    return this.batchService.getBatchEva();
-  }
+  // @Get('/batchEva')
+  // public async getprogram() {
+  //   return this.batchService.getBatchEva();
+  // }
 
-  @Get('/emp')
-  public async getEmp() {
-    return this.batchService.getEmp();
-  }
+  // @Get('/emp')
+  // public async getEmp() {
+  //   return this.batchService.getEmp();
+  // }
 
-  @Put('/updateBatch')
-  public async Updated(@Body() fields: any, @Param('id') batchId: number) {
+  @Put('/editBatch/:id')
+  public async updateBatch(@Body() fields: any, @Param('id') batchId: number) {
     fields.batchId;
 
-    return this.batchService.update(batchId);
+    return this.batchService.updateBatch(batchId, fields);
   }
 
-  @Delete('/deleteBatch')
-  delete(@Param('id') id: number) {
-    return this.batchService.delete(id);
+  @Delete('/removeBatch')
+  deleteBatch(@Param('id') id: number) {
+    return this.batchService.deleteBatch(id);
   }
 }

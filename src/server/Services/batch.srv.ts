@@ -13,8 +13,6 @@ export class BatchService {
     @InjectRepository(Batch) private batchRepo: Repository<Batch>,
     @InjectRepository(BatchStudent)
     private batchStudent: Repository<BatchStudent>,
-    @InjectRepository(BatchStudentEvaluation)
-    private batchEva: Repository<BatchStudentEvaluation>,
     @InjectRepository(Employee)
     private emp: Repository<Employee>,
   ) {}
@@ -33,51 +31,17 @@ export class BatchService {
     });
   }
 
-  public async getBatchStudent() {
-    return await this.batchStudent.find({
-      relations: {
-        bastBatch: true,
-        bastEntity: { userEntity: true },
-      },
-      order: {
-        bastModifiedDate: 'desc',
-      },
-    });
-  }
-
-  public async getBatchEva() {
-    return await this.batchEva.find({
-      relations: {
-        baseBast: { bastBatch: true },
-      },
-      order: {
-        baseModifiedDate: 'desc',
-      },
-    });
-  }
-
-  public async getEmp() {
-    return await this.emp.find({
-      relations: {
-        empEmpEntity: { empEntity: true, empJoro: true },
-        empEntity: true,
-        empJoro: true,
-      },
-      order: {
-        empModifiedDate: 'desc',
-      },
-    });
-  }
-
-  public async update(id: number) {
+  public async updateBatch(id: number, fields: any) {
     try {
-      return await this.batchRepo.findOne({ where: { batchId: id } });
+      const batchs = await this.batchRepo.findOne({ where: { batchId: id } });
+      Object.assign(batchs, fields);
+      return await this.batchRepo.save(batchs);
     } catch (error) {
       return error.message;
     }
   }
 
-  public async delete(id: number) {
+  public async deleteBatch(id: number) {
     try {
       const batch = await this.batchRepo.delete(id);
       return 'Delete' + batch.affected + 'rows';

@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Injectable, Param, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Injectable,
+  Param,
+  ParseIntPipe,
+  Put,
+} from '@nestjs/common';
 
 import { CandService } from '../Services/cand.srv';
 
@@ -12,24 +20,29 @@ export class CandController {
     return this.candService.getBatch();
   }
 
-  @Get('/bootcamp')
-  public async getBoot() {
-    return this.candService.getBoot();
+  @Get('/apply')
+  public async getApply() {
+    return this.candService.getApply();
   }
 
-  @Get('/program')
-  public async getProg() {
-    return this.candService.getProg();
+  @Get('/filter')
+  public async getFilter() {
+    return this.candService.getFilter();
   }
 
-  @Get('/user')
-  public async getUser() {
-    return this.candService.getUser();
+  @Get('/contract')
+  public async getContract() {
+    return this.candService.getContract();
   }
 
-  @Get('/userEdu')
-  public async getUserEdu() {
-    return this.candService.getUserEdu();
+  @Get('/disqualified')
+  public async getDisqualified() {
+    return this.candService.getDisqualified();
+  }
+
+  @Get('/notrespond')
+  public async getNotRespond() {
+    return this.candService.getNotRespond();
   }
 
   // @Get('api/candidate')
@@ -37,10 +50,51 @@ export class CandController {
   //   return this.candService.findOne(id);
   // }
 
-  @Put('/updateCandidate')
-  public async update(@Body() fields: any, @Param('id') userEntityId: number) {
-    fields.userEntityId;
+  @Put('/editApply/:boapEntityId')
+  public async updateApply(
+    @Body() fields: any,
+    @Param('boapEntityId', ParseIntPipe) boapEntityId: number,
+  ) {
+    fields.boapEntityId;
 
-    return this.candService.update(userEntityId);
+    return this.candService.updateApply(boapEntityId, fields);
+  }
+
+  @Put('/editFilter/:boapEntityId')
+  public async updateFilter(
+    @Body() fields: any,
+    @Param('boapEntityId', ParseIntPipe) boapEntityId: number,
+  ) {
+    return this.candService.updateFilter(boapEntityId, fields);
+  }
+
+  @Put('/editContract/:boapEntityId')
+  public async updateContract(
+    @Body() fields: any,
+    @Param('boapEntityId', ParseIntPipe) boapEntityId: number,
+  ) {
+    fields.boapEntityId;
+
+    return this.candService.updateApply(boapEntityId, fields);
+  }
+
+  @Put('/editDisqualified/:boapEntityId')
+  public async updateDisqualified(
+    @Body() fields: any,
+    @Param('boapEntityId', ParseIntPipe) boapEntityId: number,
+  ) {
+    fields.boapEntityId;
+
+    return this.candService.updateDisqualified(boapEntityId, fields);
+  }
+
+  @Put('/editNotrespond/:boapEntityId')
+  public async updateNotrespond(
+    @Body() fields: any,
+    @Param('boapEntityId', ParseIntPipe) boapEntityId: number,
+  ) {
+    fields.boapEntityId;
+
+    return this.candService.updateNotrespond(boapEntityId, fields);
   }
 }
