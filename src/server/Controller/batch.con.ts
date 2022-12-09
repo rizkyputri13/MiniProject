@@ -6,6 +6,7 @@ import {
   Get,
   Injectable,
   Param,
+  ParseIntPipe,
   Put,
 } from '@nestjs/common';
 
@@ -21,30 +22,22 @@ export class BatchController {
     return this.batchService.getBatch();
   }
 
-  // @Get('/batchStudent')
-  // public async getBatchStudent() {
-  //   return this.batchService.getBatchStudent();
-  // }
+  @Get('/batchStudent/:id')
+  public async getBatchStudents(@Param('id', ParseIntPipe) id: number) {
+    return this.batchService.getBatchStudents(id);
+  }
 
-  // @Get('/batchEva')
-  // public async getprogram() {
-  //   return this.batchService.getBatchEva();
-  // }
-
-  // @Get('/emp')
-  // public async getEmp() {
-  //   return this.batchService.getEmp();
-  // }
-
-  @Put('/editBatch/:id')
-  public async updateBatch(@Body() fields: any, @Param('id') batchId: number) {
+  @Put('/editBatch/:batchId')
+  public async updateBatch(
+    @Body() fields: any,
+    @Param('batchId', ParseIntPipe) batchId: number,
+  ) {
     fields.batchId;
-
     return this.batchService.updateBatch(batchId, fields);
   }
 
-  @Delete('/removeBatch')
-  deleteBatch(@Param('id') id: number) {
+  @Delete('/removeBatch/:batchId')
+  deleteBatch(@Param('batchId', ParseIntPipe) id: number) {
     return this.batchService.deleteBatch(id);
   }
 }
