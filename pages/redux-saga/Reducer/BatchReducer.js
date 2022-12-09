@@ -44,19 +44,19 @@ const GetBatchSuccessed = (state,action) => {
 
 const EditBatchSuccessed = (state,action) =>{
     const {payload}=action
-    const filterBatch = state.batchs.filter(el=>el.batchId !== payload.batchhId)
+    const editBatch = state.batchs.filter(el=>el.batchId !== payload.batchId)
     return {
         ...state,
-        batchs: [...filterBatch,payload]
+        batchs: [...editBatch,payload]
     }
 }
 
 const DeleteBatchSuccessed = (state,action) =>{
     const {payload}=action
-    const filterBatch = state.batchs.filter(el=>el.batchId !== payload.batchId)
+    const deleteBatch = state.batchs.filter(el=>el.batchId !== payload.batchId)
     return {
         ...state,
-        batchs: [...filterBatch,payload]
+        batchs: [...deleteBatch]
     }
 }
 

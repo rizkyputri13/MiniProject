@@ -27,6 +27,7 @@ const columns = [
   { name: "PERIODE" },
   { name: "TRAINER" },
   { name: "STATUS" },
+  //{ name: "ACTION" },
 ];
 
 function classNames(...classes) {
@@ -35,17 +36,16 @@ function classNames(...classes) {
 
 export default function Batch() {
   const dispatch = useDispatch();
+  const [id, setId] = useState()
+  const [batchs, setBatchs] = useState([]);
   const [pageNumbers, setPageNumbers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageRange, setPageRange] = useState(0);
   const [display, setDisplay] = useState(false);
-  const [id, setId] = useState()
+  const [filter, setFilter] = useState({
+    input: "",
+  });
 
-  const batchs = [
-    {id: 0, value: 'New'},
-    {id: 1, value: 'Running'},
-    {id: 2, value: 'Closed'},
-  ]
   const handleGetBatch = useSelector((state) => state.batchStated.batchs);
   const handleEditBatch = useSelector((state) => state.batchStated.batchs);
   const handleDeleteBatch = useSelector((state) => state.batchStated.batchs);
@@ -66,30 +66,32 @@ export default function Batch() {
       //setCurrentPage(1);
       setViewKeyword(searchTerm);
       return handleGetBatch.filter((data) => {
+        // return (
+        //   (data.batchName.toLowerCase().includes(searchTerm.toLowerCase()) || data.batchProg.progTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        //   data.batchInstructor.empEntity.userFirstName.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        //   categoryTerm.includes(data.batchStatus)
+        // );
+
         return (
-          (data?.batchName.toLowerCase().includes(searchTerm.toLowerCase()) || data?.batchProg.progTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            data?.batchInstructor.empEntity.userFirstName.toLowerCase().includes(searchTerm.toLowerCase())) &&
-          categoryTerm.includes(data?.batchStatus)
+          (data.batchName.toLowerCase().includes(searchTerm.toLowerCase()) || data.batchProg.progTitle.toLowerCase().includes(searchTerm.toLowerCase())) &&
+          categoryTerm.includes(data.batchId)
         );
       });
-    } 
+    }
     return handleGetBatch;
   }, [searchTerm, categoryTerm, handleGetBatch]);
 
   useEffect(() => {
     dispatch(GetBatchRequest());
-    console.log(handleGetBatch);
   }, []);
 
   useEffect(() => {
     dispatch(EditBatchRequest());
-    console.log(handleEditBatch);
   }, []);
 
-  useEffect(() => {
-    dispatch(DeleteBatchRequest());
-    console.log(handleDeleteBatch);
-  }, []);
+  // useEffect(() => {
+  //   dispatch(DeleteBatchRequest());
+  // }, []);
 
   useEffect(() => {
     setPageNumbers(
@@ -112,8 +114,6 @@ export default function Batch() {
     setDisplayEdit(true);
     setId(id);
   };
-
-  const options = {  year: 'numeric', month: 'long', day: 'numeric' };
 
   return (
     <AppLayout>
@@ -142,18 +142,18 @@ export default function Batch() {
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
               >
-                <option>
+                <option disabled selected>
                   Status
-                 </option>
-                {/*<option>New</option>
-                <option>Running</option>
-                <option>Closed</option> */}
+                </option>
+                <option value={"New"}>New</option>
+                <option value={"Running"}>Running</option>
+                <option value={"Closed"}>Closed</option>
 
-                {batchs?.map((data) => (
-                  <option key={data?.id} value={data?.value}>
-                    {data?.value}
+                {/* {batchs.map((data) => (
+                  <option key={data.batchId} value={data.batchId}>
+                    {data.batchStatus}
                   </option>
-                ))}
+                ))} */}
               </select>
               <button
                 type="submit"
@@ -196,41 +196,42 @@ export default function Batch() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
-              {/* {filteredBatchs.map && filteredBatchs.length > 0 ? (
-                  filteredBatchs.map((data) => */}
-                {Array.isArray(filteredBatchs) &&
-                  filteredBatchs
-                    .slice((currentPage - 1) * 5, currentPage * 5)
-                    .map((data) => (
+              {filteredBatchs.map && filteredBatchs.length > 0 ? (
+                  filteredBatchs.map((data) => (
+                // {Array.isArray(filteredBatchs) &&
+                //   filteredBatchs
+                //     .slice((currentPage - 1) * 5, currentPage * 5)
+                //     .map((data) => (
                       <>
-                        <tr>
-                          <td className="px-4 py-2 text-center whitespace-nowrap text-sm text-gray-900">
-                            {data?.batchName}
+                        <tr key={data.batchId}>
+                          <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
+                            {data.batchName}
                           </td>
-                          <td className="px-4 py-2 text-center whitespace-nowrap text-sm text-gray-900">
-                            {data?.batchProg.progTitle}
+                          <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
+                            {data.batchProg.progTitle}
                           </td>
                           <td className="px-6 py-2 text-end whitespace-nowrap text-sm text-gray-900">
-                            <div className="flex items-center gap-2">
+                            <div>
                               <img
                                 className="w-8 h-8 border-2 border-white rounded-full dark:border-gray-800"
                                 src="../assets/images/yuri.jpg"
                                 alt=""
                               />
-                              <span> +{data?.batchStudents.length} </span>
+
+                              {/* {data.batchProg.progTotalStudent} + */}
                             </div>
                           </td>
                           <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
-                            {new Date(data?.batchStartDate).toLocaleDateString('au-AU', options)} 
-                             - <br></br> 
-                            {new Date(data?.batchEndDate).toLocaleDateString('au-AU', options)}
+                            {data.batchStartDate}
+                            <br></br>
+                            {data.batchEndDate}
                           </td>
                           <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
-                            {data?.batchInstructor.empEntity.userFirstName}{" "}
-                            {data?.batchInstructor.empEntity.userLastName}
+                            {data.batchInstructor.empEntity.userFirstName}{" "}
+                            {data.batchInstructor.empEntity.userLastName}
                           </td>
                           <td className="px-6 py-2 text-center whitespace-nowrap text-sm text-gray-900">
-                            {data?.batchStatus}
+                            {data.batchStatus}
                           </td>
 
                           {/*Option*/}
@@ -292,14 +293,14 @@ export default function Batch() {
                                         <Menu.Item>
                                           {({ active }) => (
                                             <Link
-                                              href="#"
+                                              href={`/app/batch/close/${data.batchId}`}
                                               onClick={() => {
                                                 if (
                                                   window.confirm(
                                                     "Close this Batch?"
                                                   )
                                                 )
-                                                  onChange(data.batchStatus);
+                                                  onChange(data.batchId);
                                               }}
                                               className={classNames(
                                                 active
@@ -394,7 +395,13 @@ export default function Batch() {
                           </td>
                         </tr>
                       </>
-                    ))}
+                    ))
+                    ) : (
+                      <div className=" col-span-3 font-medium text-lg  flex place-content-center w-full">
+                        <p>Data Not Found</p>
+                      </div>
+                    )
+                  }
               </tbody>
             </table>
             {handleGetBatch.length === 0 && (

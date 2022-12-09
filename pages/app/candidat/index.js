@@ -19,8 +19,8 @@ import {
   ChevronRightIcon,
   ChevronLeftIcon,
 } from "@heroicons/react/solid";
-import Modal from "../../component/ModalReview";
-import ModalReview from "../../component/ModalReview";
+//import Modal from "../../component/ModalReview";
+//import ModalReview from "../../component/ModalReview";
 import ModalFilter from "../../component/ModalFilter";
 import ModalApply from "../../component/ModalApply";
 import ModalContract from "../../component/ModalContract";
@@ -57,10 +57,6 @@ export default function Candidate() {
   const [pageNumbers, setPageNumbers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageRange, setPageRange] = useState(0);
-  const [display, setDisplay] = useState(false);
-  const [filter, setFilter] = useState({
-    input: "",
-  });
 
   const handleGetApply = useSelector(
     (state) => state.candidateStated.applies
@@ -120,10 +116,10 @@ export default function Candidate() {
     setPageRange(0);
   }, [handleGetApply]);
 
-  const onClick = (id) => {
-    setDisplayEdit(true);
-    setId(id);
-  };
+  // const onClick = (id) => {
+  //   setDisplayEdit(true);
+  //   setId(id);
+  // };
 
   return (
     <AppLayout>
@@ -153,7 +149,7 @@ export default function Candidate() {
                 {category}
               </Tab>
             ))}
-            <select className="select flex rounded-lg max-w-xs px-8 py-0.5 text-xs ">
+            {/* <select className="select flex rounded-lg max-w-xs px-8 py-0.5 text-xs ">
               <option disabled selected>
                 Filter by Month
               </option>
@@ -178,7 +174,7 @@ export default function Candidate() {
               <option>2020</option>
               <option>2021</option>
               <option>2022</option>
-            </select>
+            </select> */}
           </Tab.List>
           <Tab.Panels>
             <Tab.Panel>
@@ -197,18 +193,18 @@ export default function Candidate() {
                 <tbody className="bg-white divide-y divide-gray-100">
                   {Array.isArray(handleGetApply) &&
                     handleGetApply
-                      .slice((currentPage - 1) * 10, currentPage * 10)
+                      .slice((currentPage - 1) * 5, currentPage * 5)
                       .map((apply) => (
                         <>
                           <tr key={apply.boapEntityId}>
-                            <td className=" text-center whitespace-nowrap text-sm text-gray-900">
+                            <td className=" text-center whitespace-nowrap text-sm text-gray-900 px-6">
                               <img
                                 className="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800"
                                 src="../assets/images/yuri.jpg"
                                 alt=""
                               />
                             </td>
-                            <td className="px-4 py-5 text-left whitespace-nowrap text-sm text-gray-900">
+                            <td className="px-2 py-5 text-left whitespace-nowrap text-sm text-gray-900">
                               <div>
                                 {apply.boapEntity.userFirstName}{" "}
                                 {apply.boapEntity.userLastName}
@@ -227,8 +223,8 @@ export default function Candidate() {
                               {apply.boapEntity.usersEducations[0] ? apply.boapEntity.usersEducations[0].usduFieldStudy : 'No major inserted'}
                               </div>
                             </td>
-                            <td className="px-4 py-2 text-center whitespace-nowrap text-sm text-gray-900">
-                              Lulus :{" "}
+                            <td className="px-2 py-2 text-center whitespace-nowrap text-sm text-gray-900">
+                              Graduated :{" "}
                               {/* {
                             apply.boapEntity.usersEducations[0].usduEndDate} */}
                               {apply.boapEntity.usersEducations[0] ? new Date(
@@ -242,11 +238,11 @@ export default function Candidate() {
                               {apply.boapProg.progTitle}
                             </td>
                             <td className="px-4 py-2 text-left whitespace-nowrap text-sm text-gray-900">
-                              <div>
+                              {/* <div>
                                 Applied on{" "}
                                 {apply.boapProg.progId.boapModifiedDate}
                                 <br></br>
-                              </div>
+                              </div> */}
                               <div className="font-style: italic">
                                 {apply.boapStatus}
                               </div>
@@ -278,11 +274,11 @@ export default function Candidate() {
                 <tbody className="bg-white divide-y divide-gray-100">
                   {Array.isArray(handleGetFilter) &&
                     handleGetFilter
-                      .slice((currentPage - 1) * 10, currentPage * 10)
+                      .slice((currentPage - 1) * 5, currentPage * 5)
                       .map((filter) => (
                         <>
                           <tr key={filter.boapEntityId}>
-                            <td className=" text-center whitespace-nowrap text-sm text-gray-900">
+                            <td className=" text-center whitespace-nowrap text-sm text-gray-900 px-6">
                               <img
                                 className="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800"
                                 src="../assets/images/yuri.jpg"
@@ -308,7 +304,7 @@ export default function Candidate() {
                               </div>
                             </td>
                             <td className="px-4 py-2 text-center whitespace-nowrap text-sm text-gray-900">
-                              Lulus :{" "}
+                              Graduated :{" "}
                               {/* {
                             apply.boapEntity.usersEducations[0].usduEndDate} */}
                               {/* {new Date(
@@ -325,11 +321,11 @@ export default function Candidate() {
                               {filter.boapProg.progTitle}
                             </td>
                             <td className="px-4 py-2 text-left whitespace-nowrap text-sm text-gray-900">
-                              <div>
+                              {/* <div>
                                 Applied on{" "}
                                 {filter.boapProg.progId.boapModifiedDate}
                                 <br></br>
-                              </div>
+                              </div> */}
                               <div className="font-style: italic">
                                 {filter.boapStatus}
                               </div>
@@ -361,11 +357,11 @@ export default function Candidate() {
                 <tbody className="bg-white divide-y divide-gray-100">
                   {Array.isArray(handleGetContract) &&
                     handleGetContract
-                      .slice((currentPage - 1) * 10, currentPage * 10)
+                      .slice((currentPage - 1) * 5, currentPage * 5)
                       .map((contract) => (
                         <>
                           <tr key={contract.boapEntityId}>
-                            <td className=" text-center whitespace-nowrap text-sm text-gray-900">
+                            <td className=" text-center whitespace-nowrap text-sm text-gray-900 ">
                               <img
                                 className="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800"
                                 src="../assets/images/yuri.jpg"
@@ -391,7 +387,7 @@ export default function Candidate() {
                               </div>
                             </td>
                             <td className="px-4 py-2 text-center whitespace-nowrap text-sm text-gray-900">
-                              Lulus :{" "}                            
+                              Graduated :{" "}                            
                               {contract.boapEntity.usersEducations[0] ? new Date(
                                  contract.boapEntity.usersEducations[0].usduEndDate 
                               ).getFullYear() : '-'}
@@ -403,11 +399,11 @@ export default function Candidate() {
                               {contract.boapProg.progTitle}
                             </td>
                             <td className="px-4 py-2 text-left whitespace-nowrap text-sm text-gray-900">
-                              <div>
+                              {/* <div>
                                 Applied on{" "}
                                 {contract.boapProg.progId.boapModifiedDate}
                                 <br></br>
-                              </div>
+                              </div> */}
                               <div className="font-style: italic">
                                 Score : {contract.boapTotalSkor}, {contract.boapStatus}
                               </div>
@@ -439,11 +435,11 @@ export default function Candidate() {
                 <tbody className="bg-white divide-y divide-gray-100">
                   {Array.isArray(handleGetDisqualified) &&
                     handleGetDisqualified
-                      .slice((currentPage - 1) * 10, currentPage * 10)
+                      .slice((currentPage - 1) * 5, currentPage * 5)
                       .map((disq) => (
                         <>
                           <tr key={disq.boapEntityId}>
-                            <td className=" text-center whitespace-nowrap text-sm text-gray-900">
+                            <td className=" text-center whitespace-nowrap text-sm text-gray-900 px-6">
                               <img
                                 className="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800"
                                 src="../assets/images/yuri.jpg"
@@ -469,7 +465,7 @@ export default function Candidate() {
                               </div>
                             </td>
                             <td className="px-4 py-2 text-center whitespace-nowrap text-sm text-gray-900">
-                              Lulus :{" "}                             
+                              Graduated :{" "}                             
                               {disq.boapEntity.usersEducations[0] ? new Date(
                                 disq.boapEntity.usersEducations[0].usduEndDate 
                               ).getFullYear() : '-'}
@@ -477,15 +473,15 @@ export default function Candidate() {
                             <td className="px-4 py-2 text-center whitespace-nowrap text-sm text-gray-900">
                               HP : 0{disq.boapEntity.usersPhones.uspoNumber}
                             </td>
-                            <td className=" py-2 text-center whitespace-nowrap text-sm text-gray-900">
+                            <td className=" py-4 text-center whitespace-nowrap text-sm text-gray-900">
                               {disq.boapProg.progTitle}
                             </td>
                             <td className="px-4 py-2 text-left whitespace-nowrap text-sm text-gray-900">
-                              <div>
+                              {/* <div>
                                 Applied on{" "}
                                 {disq.boapProg.progId.boapModifiedDate}
                                 <br></br>
-                              </div>
+                              </div> */}
                               <div className="font-style: italic">
                               Score : {disq.boapTotalSkor}, {disq.boapStatus}
                               </div>
@@ -517,13 +513,13 @@ export default function Candidate() {
                 <tbody className="bg-white divide-y divide-gray-100">
                   {Array.isArray(handleGetNotrespond) &&
                     handleGetNotrespond
-                      .slice((currentPage - 1) * 10, currentPage * 10)
+                      .slice((currentPage - 1) * 5, currentPage * 5)
                       .map((not) => (
                         <>
                           <tr key={not.boapEntityId}>
-                            <td className=" text-center whitespace-nowrap text-sm text-gray-900">
+                            <td className=" text-center whitespace-nowrap text-sm text-gray-900 px-6">
                               <img
-                                className="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800"
+                                className="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800 "
                                 src="../assets/images/yuri.jpg"
                                 alt=""
                               />
@@ -548,7 +544,7 @@ export default function Candidate() {
                               </div>
                             </td>
                             <td className="px-4 py-2 text-center whitespace-nowrap text-sm text-gray-900">
-                              Lulus :{" "}
+                              Graduated :{" "}
      
                               {not.boapEntity.usersEducations[0] ? new Date(
                                  not.boapEntity.usersEducations[0].usduEndDate 
@@ -557,15 +553,15 @@ export default function Candidate() {
                             <td className="px-4 py-2 text-center whitespace-nowrap text-sm text-gray-900">
                               HP : 0{not.boapEntity.usersPhones.uspoNumber}
                             </td>
-                            <td className=" py-2 text-center whitespace-nowrap text-sm text-gray-900">
+                            <td className=" py-4 text-center whitespace-nowrap text-sm text-gray-900">
                               {not.boapProg.progTitle}
                             </td>
                             <td className="px-4 py-2 text-left whitespace-nowrap text-sm text-gray-900">
-                              <div>
+                              {/* <div>
                                 Applied on{" "}
                                 {not.boapProg.progId.boapModifiedDate}
                                 <br></br>
-                              </div>
+                              </div> */}
                               <div className="font-style: italic">
                                 {not.boapStatus}
                               </div>
@@ -587,12 +583,12 @@ export default function Candidate() {
 
       <div className="sm:block">
         <div className="align-middle inline-block min-w-full border-b border-gray-200 ">
-          {handleGetApply.length === 0 && (
+          {/* {handleGetApply.length === 0 && (
             <div className="px-6 py-3 text-center whitespace-nowrap text-sm font-medium text-gray-900">
               {" "}
               Data Not Found...
             </div>
-          )}
+          )} */}
 
           <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
             <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-center">

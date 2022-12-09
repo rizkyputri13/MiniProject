@@ -9,7 +9,7 @@ import { EditFilterRequest } from "../redux-saga/Action/CandAction";
 
 export default function ModalFilter({ dataFilter }) {
   let [isOpen, setIsOpen] = useState(false);
-  const filterStatus = ["passed", "Recommended","Gailed"];
+  const filterStatus = ["Passed", "Recommended","Failed"];
   const dispatch = useDispatch();
   
   const formik = useFormik({
@@ -113,16 +113,16 @@ export default function ModalFilter({ dataFilter }) {
                     <div>
                       Score Filtering Test :{" "}
                       <input
-                        className="font-xs bg-gray-50 border border-gray-300"
+                        className=" font-xs bg-gray-50 border border-gray-300"
                         id="grid-city"
                         name="boapTotalSkor"
                         type="text"
                         // value={dataFilter.boapTotalSkor}
-                        value={
-                          dataFilter.boapTotalSkor
-                            ? dataFilter.boapTotalSkor
-                            : "Please insert score"
-                        }
+                        // value={
+                        //   dataFilter.boapTotalSkor
+                        //     ? dataFilter.boapTotalSkor
+                        //     : "Please insert score"
+                        // }
                       />
                     </div>
                     <div></div>
@@ -133,7 +133,7 @@ export default function ModalFilter({ dataFilter }) {
                       onChange={(e) =>
                         formik.setFieldValue("boapStatus", e.target.value)
                       }
-                      className="select max-w font-xs bg-gray-50 border border-gray-300">
+                      className=" font-xs bg-gray-50 border border-gray-300">
                         <option value={"Passed"}
                           selected={
                             dataFilter.boapTotalSkor >= 50 ? "true" : "false"
@@ -166,7 +166,7 @@ export default function ModalFilter({ dataFilter }) {
                         rows={4}
                         className=" w-full text-sm text-gray-900 bg-gray-50 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         placeholder="Kandidat direkomendasikan"
-                        value={dataFilter.boapReview}
+                        //value={dataFilter.boapReview}
                       />
                     </div>
                   </div>
@@ -174,15 +174,15 @@ export default function ModalFilter({ dataFilter }) {
                   <div className="mt-10 flex gap-2 justify-center">
                     <button
                       type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-red-300 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-red-300 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                       onClick={closeModal}
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-300 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                      // onClick={closeModal}
+                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-300 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      onChange={closeModal}
                     >
                       Submit
                     </button>

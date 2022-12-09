@@ -163,7 +163,7 @@ const EditContractSuccessed = (state, action) => {
   const editContract = state.contracts.filter(
     (el) => el.boapEntityId !== payload.boapEntityId
   );
-  if (payload.boapStatus !== 'Not') {
+  if (payload.boapStatus === 'Contract') {
     return {
       ...state,
       contracts: [...editContract],

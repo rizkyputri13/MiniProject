@@ -27,7 +27,7 @@ function* handleGetBatch() {
 function* handleEditBatch(action) {
     const { payload } = action
     try {
-        const result = yield call(BatchApi.editBatch, payload)
+        const result = yield call(BatchApi.updateBatch, payload)
         yield put(EditBatchSuccess(result.data))
     } catch (error) {
         yield put(EditBatchFailed(error))
@@ -37,7 +37,7 @@ function* handleEditBatch(action) {
 function* handleDeleteBatch(action) {
     const { payload } = action
     try {
-        const result = yield call(BatchApi.removeBatch, payload)
+        const result = yield call(BatchApi.deleteBatch, payload)
         yield put(DeleteBatchSuccess(result.data))
     } catch (error) {
         yield put(DeleteBatchFailed(error))
